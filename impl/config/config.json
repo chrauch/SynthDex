@@ -1,0 +1,794 @@
+################################################################################
+# Project:  synthdex
+# Purpose:  Adaptive TIR indexing
+# Author:   Christian Rauch
+################################################################################
+# Copyright (c) 2025 - 2026
+#
+# All rights reserved.
+#
+# Permission is hereby granted, free of charge, to any person obtaining a
+# copy of this software and associated documentation files (the "Software"),
+# to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense,
+# and/or sell copies of the Software, and to permit persons to whom the
+# Software is furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included
+# in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+# OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+# THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+# DEALINGS IN THE SOFTWARE.
+################################################################################
+{
+    "threads": -1,
+    "log-level-output" : 1,
+    "check-results": false,
+    "use-templated-synthdex": true,
+    "editor": "nano config/config.json",
+    "logs": "ls -1 ../output/logs/*.log 2>/dev/null | sort | xargs cat | tail -n",
+    "readme": "less README.md",
+    "out":
+    {
+        "dir": "../output",
+        "machine-prefix": "Mogon-A",
+        "detailed": false,
+        "formatted": false,
+        "single-OQIP-file-per-O": true,
+        "max-file-size-megabytes": 4000
+    },
+    "setup":
+    {
+        "create": "python -m venv .venv",
+        "interpreter": ".venv/bin/python",
+        "interpreter.CR-Venus": ".venv/bin/python3.14",
+        "upgrade": "-m pip install --upgrade pip",
+        "install": "-m pip install",
+        "libraries":
+        [
+            "numpy",
+            "pandas",
+            "torch",
+            "scikit-learn",
+            "pyarrow",
+            "psutil"
+        ]
+    },
+    "prediction":
+    {
+        "predict-before-run": false,
+        "top-k": 0
+    },
+    "synthesis":
+    {
+        "top-k": 10,
+        "variant": ["grid"],
+        "skyline": true,
+        "skyline-tolerance": 0.005,
+        "top-relative": 0.05,
+        "verbose": false,
+        "store-all-evaluations": true,
+        "sample-size": 1000,
+        "batch-evals-size": 10,
+        "grad":
+        {
+            "max-steps": 4000,
+            "lr": 0.05,
+            "enable-multi-init": true,
+            "objective": "weighted_log",
+            "multi-start": 100,
+            "adam-steps": 1200,
+            "lbfgs-steps": 200,
+            "patience": 120,
+            "min-rel-improve": 1e-4,
+            "grad-clip": 1.0,
+            "cosine-anneal": true,
+            "seed": 42,
+            "trust-region-factor": 0.35,
+            "trust-region-decay": 0.5,
+            "sam-rho": 0.02,
+            "perturb-on-plateau": true,
+            "perturb-trials": 4,
+            "perturb-scale": 0.20,
+            "threshold-slow": 2e-4,
+            "perturb-check-interval": 60,
+            "sobol-local": true,
+            "local-sobol-points": 12,
+            "span-grad-normalize": true,
+            "weight-temperature": 1.0,
+            "revert-on-degradation": true,
+            "max-param-jump-frac": 0.55,
+            "diagnostics-level": 2
+        },
+        "grid":
+        {
+            "step-resolution-and-top-k": 
+            [
+                [6, 20],
+                [3, 10],
+                [2, 2]
+            ],
+            "candidates-limit": 100000,
+            "objective": "weighted_log",
+            "weight-temperature": 1.0
+        }
+    },
+    "learning":
+    {
+        "split": [0.9, 0.1, 0.0],
+        "sample-ratio": 0.2,
+        "batch-size": 16,
+        "epochs": 50,
+        "progress-steps" : 100,
+        "patience": 10,
+        "features-dim": 132,
+        "targets": ["p_throughput_log", "p_size_log"],
+        "persistence-threshold": [0.05],
+        "stopping-threshold": [0.001],
+        "neural-network":
+        {
+            "hidden-layers": [512, 512, 128, 64, 32, 16]
+        },
+        "optimizer":
+        {
+            "lr": 1e-3,
+            "weight-decay": 1e-4,
+            "eps": 1e-8
+        },
+        "scheduler":
+        {
+            "factor": 0.5,
+            "patience": 5,
+            "min-lr": 1e-6
+        },
+        "penalty-weights": [1.0, 0.05]
+    },
+    "o":
+    {
+        "num": 100,
+        "ext": 
+        {
+            "bins": 12,
+            "elem-dev-clamp": 0.1
+        },
+        "elem": 
+        {
+            "max-dict-ratio-per-o": 0.25,
+            "bins": 15
+        },
+        "gen":
+        {
+            "patterns-active":
+            [
+                "MIN",
+                "MAX"
+            ],
+            "vary-template-fields": 0.1,
+            "min-estimated-megabytes": 10,
+            "max-estimated-megabytes": 500,
+            "calculate-memory": false
+        },
+        "stats":
+        {
+            "slices": 10 
+        }
+    },
+    "q":
+    {
+        "runs": 10,
+        "elem":
+        {
+            "max-cnt": 9
+        },
+        "gen":
+        {
+            "combine-all-workloads": false,
+            "shuffle-workloads": true,
+            "num-override": 10000,
+            "max-gen-tries": 15000,
+            "patterns-active":
+            [
+                "BASE",
+                
+                "LOWFREQ",
+                "HIGHFREQ",
+
+                "SHORT",
+                "LONG",
+
+                "FEW",
+                "MANY",
+
+                "RND1",
+                "RND2",
+
+                "SELECTIVE",
+                "BROAD",
+                "SELECTIVE+BROAD",
+
+                "SELECTIVEWIDE",
+                "BROADNARROW",
+                "SELECTIVEWIDE+BROADNARROW",
+
+                "HOT",
+                "COLD",
+                "HOT+COLD",
+
+                "NORESULTS",
+                "FEWRESULTS",
+                "MANYRESULTS"
+            ],
+            "workload":
+            {
+                "BASE":
+                {
+                    "num": 100,
+                    "elem":
+                    {
+                        "cnt": [3],
+                        "freqs": [ "0-100" ]
+                    },
+                    "ext":
+                    {
+                        "ranges": [ "0.1" ],
+                        "skew": [ "0-100" ]
+                    }
+                },
+                "LOWFREQ":
+                {
+                    "num": 200,
+                    "elem":
+                    {
+                        "cnt": [3],
+                        "freqs": [ "0-0.1", "0-0.01", "0-0.001" ]
+                    },
+                    "ext":
+                    {
+                        "ranges": [ "0.1" ],
+                        "skew": [ "0-100" ]
+                    }
+                },
+                "HIGHFREQ":
+                {
+                    "num": 200,
+                    "elem":
+                    {
+                        "cnt": [3],
+                        "freqs": [ "10-100", "1-10", "0.1-1" ]
+                    },
+                    "ext":
+                    {
+                        "ranges": [ "0.1" ],
+                        "skew": [ "0-100" ]
+                    }
+                },
+                "SHORT":
+                {
+                    "num": 100,
+                    "elem":
+                    {
+                        "cnt": [3],
+                        "freqs": [ "0-100" ]
+                    },
+                    "ext":
+                    {
+                        "ranges": [ "0-0.1" ],
+                        "skew": [ "0-100" ]
+                    }
+                },
+                "LONG":
+                {
+                    "num": 100,
+                    "elem":
+                    {
+                        "cnt": [3],
+                        "freqs": [ "0-100" ]
+                    },
+                    "ext":
+                    {
+                        "ranges": [ "0.1-10" ],
+                        "skew": [ "0-100" ]
+                    }
+                },
+                "FEW":
+                {
+                    "num": 100,
+                    "elem":
+                    {
+                        "cnt": [1, 2],
+                        "freqs": [ "0-100" ]
+                    },
+                    "ext":
+                    {
+                        "ranges": [ "0.1" ],
+                        "skew": [ "0-100" ]
+                    }
+                },
+                "MANY":
+                {
+                    "num": 100,
+                    "elem":
+                    {
+                        "cnt": [4, 5, 6, 7, 8, 9],
+                        "freqs": [ "0-100" ]
+                    },
+                    "ext":
+                    {
+                        "ranges": [ "0.1" ],
+                        "skew": [ "0-100" ]
+                    }
+                },
+                "RND1":
+                {
+                    "num": 700,
+                    "elem":
+                    {
+                        "cnt": [1, 2, 3, 4, 5, 6, 7, 8, 9],
+                        "freqs":
+                        [
+                            "0-100",
+                            "0-0.0001",
+                            "0.0001-0.001",
+                            "0.001-0.01",
+                            "0.01-0.1",
+                            "0.1-1",
+                            "1-10",
+                            "10-100"
+                        ]
+                    },
+                    "ext":
+                    {
+                        "ranges":
+                        [
+                            "0-0.001",
+                            "0.001-0.01",
+                            "0.01-0.1",
+                            "0.1-1",
+                            "1-10",
+                            "10-100"
+                        ],
+                        "skew": [ "0-100" ]
+                    }
+                },
+                "RND2":
+                {
+                    "num": 200,
+                    "elem":
+                    {
+                        "cnt": [1, 2, 3, 4, 5, 6, 7, 8, 9],
+                        "freqs": [ "0-100" ]
+                    },
+                    "ext":
+                    {
+                        "ranges": [ "0-100"],
+                        "skew": [ "0-100" ]
+                    }
+                },
+                "NORESULTS":
+                {
+                    "num": 30,
+                    "select": "0-0",
+                    "elem":
+                    {
+                        "cnt": [1, 2, 3, 4, 5, 6, 7, 8, 9],
+                        "freqs":
+                        [
+                            "0-100",
+                            "0-0.0001",
+                            "0.0001-0.001",
+                            "0.001-0.01",
+                            "0.01-0.1",
+                            "0.1-1",
+                            "1-10",
+                            "10-100"
+                        ]
+                    },
+                    "ext":
+                    {
+                        "ranges":
+                        [
+                            "0-0.001",
+                            "0.001-0.01",
+                            "0.01-0.1",
+                            "0.1-1",
+                            "1-10",
+                            "10-100"
+                        ],
+                        "skew": [ "0-100" ]
+                    }
+                },
+                "FEWRESULTS":
+                {
+                    "num": 10,
+                    "select": "0-0.001",
+                    "elem":
+                    {
+                        "cnt": [1, 2, 3, 4, 5, 6, 7, 8, 9],
+                        "freqs":
+                        [
+                            "0-100",
+                            "0-0.0001",
+                            "0.0001-0.001",
+                            "0.001-0.01",
+                            "0.01-0.1",
+                            "0.1-1",
+                            "1-10",
+                            "10-100"
+                        ]
+                    },
+                    "ext":
+                    {
+                        "ranges":
+                        [
+                            "0-0.001",
+                            "0.001-0.01",
+                            "0.01-0.1",
+                            "0.1-1",
+                            "1-10",
+                            "10-100"
+                        ],
+                        "skew": [ "0-100" ]
+                    }
+                },
+                "MANYRESULTS":
+                {
+                    "num": 10,
+                    "select": "5-100",
+                    "elem":
+                    {
+                        "cnt": [1, 2, 3, 4, 5, 6, 7, 8, 9],
+                        "freqs":
+                        [
+                            "0-100",
+                            "0-0.0001",
+                            "0.0001-0.001",
+                            "0.001-0.01",
+                            "0.01-0.1",
+                            "0.1-1",
+                            "1-10",
+                            "10-100"
+                        ]
+                    },
+                    "ext":
+                    {
+                        "ranges":
+                        [
+                            "0-0.001",
+                            "0.001-0.01",
+                            "0.01-0.1",
+                            "0.1-1",
+                            "1-10",
+                            "10-100"
+                        ],
+                        "skew": [ "0-100" ]
+                    }
+                },
+                "SELECTIVEWIDE":
+                {
+                    "num": 100,
+                    "elem":
+                    {
+                        "cnt": [3],
+                        "freqs": [ "0-0.01", "0-0.001" ]
+                    },
+                    "ext":
+                    {
+                        "ranges": [ "1-10" ],
+                        "skew": [ "0-100" ]
+                    }
+                },
+                "BROADNARROW":
+                {
+                    "num": 3,
+                    "elem":
+                    {
+                        "cnt": [1,2],
+                        "freqs": [ "1-100" ]
+                    },
+                    "ext":
+                    {
+                        "ranges": [ "0-0.01", "0-0.001" ],
+                        "skew": [ "0-100" ]
+                    }
+                },
+                "HOT":
+                {
+                    "num": 100,
+                    "elem":
+                    {
+                        "cnt": [3],
+                        "freqs": [ "0-0.01" ]
+                    },
+                    "ext":
+                    {
+                        "ranges": [ "5-10" ],
+                        "skew": [ "90-100" ]
+                    }
+                },
+                "COLD":
+                {
+                    "num": 3,
+                    "elem":
+                    {
+                        "cnt": [3],
+                        "freqs": [ "1-100" ]
+                    },
+                    "ext":
+                    {
+                        "ranges": [ "0-0.01" ],
+                        "skew": [ "0-80" ]
+                    }
+                },
+                "SELECTIVE":
+                {
+                    "num": 200,
+                    "elem":
+                    {
+                        "cnt": [1],
+                        "freqs": [ "0-0.1" ]
+                    },
+                    "ext":
+                    {
+                        "ranges": [ "0.1-100" ],
+                        "skew": [ "0-100" ]
+                    }
+                },
+                "BROAD":
+                {
+                    "num": 100,
+                    "elem":
+                    {
+                        "cnt": [1,2,3],
+                        "freqs": [ "0-100" ]
+                    },
+                    "ext":
+                    {
+                        "ranges": [ "0-0.1" ],
+                        "skew": [ "0-100" ]
+                    }
+                }
+            }
+        }
+    },
+    "i":
+    {
+        "encoding-length": 68,
+        "gen":
+        {
+            "exploration-per-O":
+            {
+                "pure_tif+slicing": 4,
+                "pure_tif+sharding": 0,
+                "pure_tif+hint": 4,
+                "pure_irhint": 3,
+
+                "refine-elemfreq_tif+basic_tif+slicing_irhint": 15,
+                "refine-elemfreq_tif+basic_tif+hint_irhint": 15,
+
+                "slice-temporal_tif+basic_irhint": 0,
+                "slice-temporal_tif+slicing_irhint": 6,
+                "slice-temporal_tif+hint_irhint": 6,
+                "slice-temporal_irhint_tif+basic": 0,
+                "slice-temporal_irhint_tif+slicing": 6,
+                "slice-temporal_irhint_tif+hint": 6
+            },
+            "patterns-active":
+            [
+                "pure_tif+slicing",
+                "pure_tif+sharding",
+                "pure_tif+hint",
+                "pure_irhint",
+
+                "refine-elemfreq_tif+basic_tif+slicing_irhint",
+                "refine-elemfreq_tif+basic_tif+hint_irhint",
+
+                "refine-elemfreq_tif+slicing_irhint",
+                "refine-elemfreq_tif+hint_irhint",
+
+                "slice-temporal_tif+basic_irhint",
+                "slice-temporal_tif+slicing_irhint",
+                "slice-temporal_tif+hint_irhint",
+                "slice-temporal_irhint_tif+basic",
+                "slice-temporal_irhint_tif+hint",
+                "slice-temporal_irhint_tif+slicing"
+            ],
+            "design-space":
+            {
+                "pure_tif+basic":    { "method":"tif;basic" },
+                "pure_tif+slicing":  { "method":"tif;slicing;dyn;[1.8-2.6];[0.3-0.9]" },
+                "pure_tif+sharding": { "method":"tif;sharding;dyn;[1.8-2.8];[0.3-1.6]" },
+                "pure_tif+hint":     { "method":"tif;hint;mrg;dyn;[1.3-4.0];[0.5-4.0]" },
+                "pure_irhint":       { "method":"irhint;perf;[5-16]" },
+
+                "refine-elemfreq_tif+basic_tif+slicing_irhint":
+                {
+                    "refine":"elemfreq",
+                    "fanout":
+                    [
+                        {"range":"[0.8-0.95]-1","method":"tif;basic"},
+                        {"range":"[0.65-0.78]-p","method":"tif;slicing;dyn;[1.8-2.6];[0.3-0.9]"},
+                        {"range":"0-p","method":"irhint;perf;[7-15]"}
+                    ]
+                },
+                "refine-elemfreq_tif+basic_tif+hint_irhint":
+                {
+                    "refine":"elemfreq",
+                    "fanout":
+                    [
+                        {"range":"[0.8-0.95]-1","method":"tif;basic"},
+                        {"range":"[0.65-0.78]-p","method":"tif;hint;mrg;dyn;[1.3-4.0];[0.5-4.0]"},
+                        {"range":"0-p","method":"irhint;perf;[7-15]"}
+                    ]
+                },
+
+                "refine-elemfreq_tif+slicing_irhint":
+                {
+                    "refine":"elemfreq",
+                    "fanout":
+                    [
+                        {"range":"[0.65-0.95]-1","method":"tif;slicing;dyn;[1.8-2.6];[0.3-0.9]"},
+                        {"range":"0-p","method":"irhint;perf;[5-15]"}
+                    ]
+                },
+                "refine-elemfreq_tif+hint_irhint":
+                {
+                    "refine":"elemfreq",
+                    "fanout":
+                    [
+                        {"range":"[0.65-0.95]-1","method":"tif;hint;mrg;dyn;[1.3-4.0];[0.5-4.0]"},
+                        {"range":"0-p","method":"irhint;perf;[5-15]"}
+                    ]
+                },
+
+                "split-temporal_irhint_irhint_irhint":
+                {
+                    "split":"temporal",
+                    "fanout":
+                    [
+                        {"range":"[0.75-0.95]-1","method":"irhint;perf;[2-8]"},
+                        {"range":"0-p","method":"irhint;perf;[2-8]"},
+                        {"range":"0-1","method":"irhint;perf;[2-5]"}
+                    ]
+                },
+                "split-temporal_tif+hint_irhint_irhint":
+                {
+                    "split":"temporal",
+                    "fanout":
+                    [
+                        {"range":"[0.75-0.95]-1","method":"tif;hint;mrg;dyn;[1.3-4.0];[0.5-4.0]"},
+                        {"range":"0-p","method":"irhint;perf;[4-9]"},
+                        {"range":"0-1","method":"irhint;perf;[2-5]"}
+                    ]
+                },
+                "split-temporal_tif+slicing_irhint_irhint":
+                {
+                    "split":"temporal",
+                    "fanout":
+                    [
+                        {"range":"[0.75-0.95]-1","method":"tif;slicing;dyn;[1.8-2.6];[0.3-0.9]"},
+                        {"range":"0-p","method":"irhint;perf;[4-9]"},
+                        {"range":"0-1","method":"irhint;perf;[2-5]"}
+                    ]
+                },
+                "split-temporal_tif+basic_irhint_irhint":
+                {
+                    "split":"temporal",
+                    "fanout":
+                    [
+                        {"range":"[0.75-0.95]-1","method":"tif;basic"},
+                        {"range":"0-p","method":"irhint;perf;[5-10]"},
+                        {"range":"0-1","method":"irhint;perf;[2-7]"}
+                    ]
+                },
+                "split-temporal_tif+basic_irhint_tif+slicing":
+                {
+                    "split":"temporal",
+                    "fanout":
+                    [
+                        {"range":"[0.75-0.95]-1","method":"tif;basic"},
+                        {"range":"0-p","method":"irhint;perf;[5-10]"},
+                        {"range":"0-1","method":"tif;slicing;dyn;[1.8-2.6];[0.3-0.9]"}
+                    ]
+                },
+
+                "split-temporal_tif+basic_irhint":
+                {
+                    "split": "temporal",
+                    "fanout":
+                    [
+                        {"range":"[0.75-0.95]-1","method":"tif;basic"},
+                        {"range":"0-1","method": "irhint;perf;[4-12]"}
+                    ]
+                },
+                "split-temporal_tif+slicing_irhint":
+                {
+                    "split":"temporal",
+                    "fanout":
+                    [
+                        {"range":"[0.75-0.95]-1","method":"tif;slicing;dyn;[1.8-2.6];[0.3-0.9]"},
+                        {"range":"0-1","method":"irhint;perf;[4-13]"}
+                    ]
+                },
+                "split-temporal_tif+hint_irhint":
+                {
+                    "split":"temporal",
+                    "fanout":
+                    [
+                        {"range":"[0.75-0.95]-1","method":"tif;hint;mrg;dyn;[1.3-4.0];[0.5-4.0]"},
+                        {"range":"0-1","method":"irhint;perf;[4-12]"}
+                    ]
+                },
+                "split-temporal_irhint_irhint":
+                {
+                    "split":"temporal",
+                    "fanout":
+                    [
+                        {"range":"[0.75-0.95]-1","method":"irhint;perf;[4-12]"},
+                        {"range":"0-1","method":"irhint;perf;[4-12]"}
+                    ]
+                },
+
+                "slice-temporal_tif+basic_irhint":
+                {
+                    "slice":"temporal",
+                    "fanout":
+                    [
+                        {"range":"[0.75-0.95]-1","method":"tif;basic"},
+                        {"range":"0-p","method":"irhint;perf;[4-14]"}
+                    ]
+                },
+                "slice-temporal_tif+slicing_irhint":
+                {
+                    "slice":"temporal",
+                    "fanout":
+                    [
+                        {"range":"[0.75-0.95]-1","method":"tif;slicing;dyn;[1.8-2.6];[0.3-0.9]"},
+                        {"range":"0-p","method":"irhint;perf;[4-14]"}
+                    ]
+                },
+                "slice-temporal_tif+hint_irhint":
+                {
+                    "slice":"temporal",
+                    "fanout":
+                    [
+                        {"range":"[0.75-0.95]-1","method":"tif;hint;mrg;dyn;[1.3-4.0];[0.5-4.0]"},
+                        {"range":"0-p","method":"irhint;perf;[4-14]"}
+                    ]
+                },
+
+                "slice-temporal_irhint_tif+basic":
+                {
+                    "slice":"temporal",
+                    "fanout":
+                    [
+                        {"range":"[0.75-0.95]-1","method":"irhint;perf;[4-14]"},
+                        {"range":"0-p","method":"tif;basic"}
+                    ]
+                },
+                "slice-temporal_irhint_tif+slicing":
+                {
+                    "slice":"temporal",
+                    "fanout":
+                    [
+                        {"range":"[0.75-0.95]-1","method":"irhint;perf;[4-14]"},
+                        {"range":"0-p","method":"tif;slicing;dyn;[1.8-2.6];[0.3-0.9]"}
+                    ]
+                },
+                "slice-temporal_irhint_tif+hint":
+                {
+                    "slice":"temporal",
+                    "fanout":
+                    [
+                        {"range":"[0.75-0.95]-1","method":"irhint;perf;[4-13]"},
+                        {"range":"0-p","method":"tif;hint;mrg;dyn;[1.3-4.0];[0.5-4.0]"}
+                    ]
+                }
+            }
+        }
+    }
+}

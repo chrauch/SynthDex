@@ -1,0 +1,7 @@
+[
+	{"method":"tif;basic"},
+	{"method":"tif;slicing;static;50"},
+	{"method":"tif;sharding;static;2"},
+	{"method":"tif;hint;mrg;static;5"},
+	{"method":"irhint;perf;9"}
+]
