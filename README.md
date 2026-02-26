@@ -50,6 +50,33 @@ Open `config/config.json` and set your Python executable in the `setup` section,
 This installs: numpy, pandas, torch, scikit-learn, pyarrow, psutil.
 
 
+## Usage
+```
+./nis <command> [--config:<dir>]
+```
+
+| Command | Description |
+| ------- | ----------- |
+| `query [<idx> [<obj> [<qry>]]]` | Run queries with a specified index, object file, and query file. Omit arguments to generate random data (to produce LCM training data). Use `?` for `<idx>` to build a random index; use `!` for a workload-optimized index. Multiple indexes and query files can be specified using `\|` as a separator. |
+| `update <idx> <obj> <obj2>` | Update index `<idx>` (built on `<obj>`) by inserting the new objects in `<obj2>`. |
+| `delete <idx> <obj> <obj2>` | Delete the objects in `<obj2>` from index `<idx>` built on `<obj>`. |
+| `analyze <obj> [<qry>]` | Analyze the statistical properties of an object file, and optionally of a query file. |
+| `generate-O` | Generate a random object dataset according to the configured parameters. |
+| `generate-Q <obj>` | Generate random queries (configured workloads) for the given object file. |
+| `generate-OQ` | Generate both random objects and random queries (configured workloads) in one step. |
+| `generate-O-stats` | Generate statistical summaries for random object data. |
+| `learn` | Train the Learned Cost Model on previously collected index statistics. |
+| `predict <idx> <obj> [<qry>]` | Use the Learned Cost Model to predict query performance for a given index and dataset without actually building it. |
+| `synthesize <obj> [<qry>]` | Run the synthesis process to find an approximately optimal index configuration for the given object and query workload. |
+| `score [<filter>]` | Load all recorded scores, optionally filter them, apply skyline or complete ranking, and display results. Filter format: `skyline:<obj>\|<qry>` or `complete:<obj>\|<qry>`. |
+| `logs [<num>]` | Display the last `<num>` lines from all log files. |
+| `config` | Open the configuration file in the default editor. |
+| `setup` | Install required Python libraries into the configured environment. |
+| `clean [<artifacts>]` | Remove generated artifacts. Specify a comma-separated list of extensions (default: `.csv,.log,.dat,.qry`). |
+
+Debug with ```valgrind -s --leak-check=full --show-leak-kinds=all ...``` and ```gdb --batch --ex run --ex bt --args ...```.
+
+
 ## Configuration
 
 All settings are in `config/config.json`. The defaults reproduce the experimental setup from the paper; most users will not need to adjust the entries below.
@@ -119,33 +146,6 @@ Defines the set of parameterized index configuration templates available to the 
 | `threads` | `-1` | Number of threads (`-1` = all available) for query generation and object statistics. |
 | `log-level-output` | `1` | Verbosity of console output (0 = minimal, higher = more detail). |
 | `check-results` | `false` | Validate query results for correctness (slower; useful for debugging). |
-
-
-## Usage
-```
-./nis <command> [--config:<dir>]
-```
-
-| Command | Description |
-| ------- | ----------- |
-| `query [<idx> [<obj> [<qry>]]]` | Run queries with a specified index, object file, and query file. Omit arguments to generate random data. Use `?` for `<idx>` to build a random index; use `!` for a workload-optimized index. Multiple indexes can be specified using `\|` as a separator. |
-| `update <idx> <obj> <obj2>` | Update index `<idx>` (built on `<obj>`) by inserting the new objects in `<obj2>`. |
-| `delete <idx> <obj> <obj2>` | Delete the objects in `<obj2>` from index `<idx>` built on `<obj>`. |
-| `analyze <obj> [<qry>]` | Analyze the statistical properties of an object file, and optionally of a query file. |
-| `generate-O` | Generate a random object dataset according to the configured parameters. |
-| `generate-Q <obj>` | Generate random queries for the given object file. |
-| `generate-OQ` | Generate both random objects and random queries in one step. |
-| `generate-O-stats` | Generate statistical summaries for random object data. |
-| `learn` | Train the Learned Cost Model on previously collected index statistics. |
-| `predict <idx> <obj> [<qry>]` | Use the Learned Cost Model to predict query performance for a given index and dataset without actually building it. |
-| `synthesize <obj> [<qry>]` | Run the synthesis process to find an approximately optimal index configuration for the given object and query workload. |
-| `score [<filter>]` | Load all recorded scores, optionally filter them, apply skyline or complete ranking, and display results. Filter format: `skyline:<obj>\|<qry>` or `complete:<obj>\|<qry>`. |
-| `logs [<num>]` | Display the last `<num>` lines from all log files. |
-| `config` | Open the configuration file in the default editor. |
-| `setup` | Install required Python libraries into the configured environment. |
-| `clean [<artifacts>]` | Remove generated artifacts. Specify a comma-separated list of extensions (default: `.csv,.log,.dat,.qry`). |
-
-Debug with ```valgrind -s --leak-check=full --show-leak-kinds=all ...``` and ```gdb --batch --ex run --ex bt --args ...```.
 
 
 ## Components
