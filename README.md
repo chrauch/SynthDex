@@ -1,4 +1,4 @@
-# Adaptive TIR Indexing
+# Adaptive Ensemble Indexing for Temporal Information Retrieval via Learned Cost Models
 
 ## Overview
 
