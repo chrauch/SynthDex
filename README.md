@@ -105,7 +105,7 @@ Controls the index configuration synthesis process.
 
 | Key | Default | Description |
 | --- | ------- | ----------- |
-| `variant` | `["grid"]` | Search strategy: `"grid"` (discrete parameter sweep) or `"grad"` (gradient-based continuous optimization). |
+| `variant` | `["grid"]` | Search strategy: `"grid"` (discrete parameter sweep) or `"grad"` (gradient-based continuous optimization, experimental, not included). |
 | `top-k` | `10` | Number of top candidate configurations to retain per synthesis round. |
 | `skyline` | `true` | Apply Pareto skyline filtering (throughput vs. size) to prune dominated candidates. |
 | `skyline-tolerance` | `0.005` | Relative tolerance when comparing candidates on the skyline. |
