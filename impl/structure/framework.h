@@ -88,7 +88,9 @@ public:
 
     virtual void update(const IRelation &R) = 0;
 
-    virtual void remove(const RelationId &ids) = 0;
+    virtual void remove(const vector<bool> &idsToDelete) = 0;
+
+    virtual void softdelete(const vector<bool> &idsToDelete) = 0;
 
     virtual size_t getSize() { return 0; };
 
@@ -118,22 +120,19 @@ public:
 
     void update(const IRelation &R) override;
 
-    void remove(const RelationId &ids) override;
+    void remove(const vector<bool> &idsToDelete) override;
+
+    void softdelete(const vector<bool> &idsToDelete) override;
 
     size_t getSize() override
     {
-        size_t size = sizeof(*this);  // The object itself including the vector member
-        
-        // Add actual vector elements
+        size_t size = sizeof(*this);
         size += pages.size() * sizeof(tuple<Boundaries, Moveout*>);
-        
-        // Add the dynamically allocated content of each moveout node
         for (const auto &[b, m] : pages)
         {
             if (m != nullptr)
                 size += m->getSize();
         }
-        
         return size;
     }
 
@@ -168,22 +167,19 @@ public:
 
     void update(const IRelation &R) override;
 
-    void remove(const RelationId &ids) override;
+    void remove(const vector<bool> &idsToDelete) override;
+
+    void softdelete(const vector<bool> &idsToDelete) override;
 
     size_t getSize() override
     {
-        size_t size = sizeof(*this);  // The object itself including the vector member
-        
-        // Add actual vector elements
+        size_t size = sizeof(*this);
         size += pages.size() * sizeof(tuple<Boundaries, Moveout*>);
-        
-        // Add the dynamically allocated content of each moveout node
         for (const auto &[b, m] : pages)
         {
             if (m != nullptr)
                 size += m->getSize();
         }
-        
         return size;
     }
 
@@ -232,7 +228,9 @@ public:
 
     void update(const IRelation &R) override;
 
-    void remove(const RelationId &ids) override;
+    void remove(const vector<bool> &idsToDelete) override;
+
+    void softdelete(const vector<bool> &idsToDelete) override;
 
     size_t getSize() override
     {
@@ -272,7 +270,9 @@ public:
 
     void update(const IRelation &R) override;
 
-    void remove(const RelationId &ids) override;
+    void remove(const vector<bool> &idsToDelete) override;
+
+    void softdelete(const vector<bool> &idsToDelete) override;
 
     Timestamp start;
     Timestamp end;

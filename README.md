@@ -54,6 +54,7 @@ This installs: numpy, pandas, torch, scikit-learn, pyarrow, psutil.
 | `query [<idx> [<obj> [<qry>]]]` | Run queries with a specified index, object file, and query file. Omit arguments to generate random data (to produce LCM training data). Use `?` for `<idx>` to build a random index; use `!` for a workload-optimized index. Multiple indexes and query files can be specified using `\|` as a separator. |
 | `update <idx> <obj> <obj2>` | Update index `<idx>` (built on `<obj>`) by inserting the new objects in `<obj2>`. |
 | `delete <idx> <obj> <obj2>` | Delete the objects in `<obj2>` from index `<idx>` built on `<obj>`. |
+| `softdelete <idx> <obj> <obj2>` | Soft-delete (tombstone) the objects in `<obj2>` from index `<idx>` built on `<obj>`. |
 | `analyze <obj> [<qry>]` | Analyze the statistical properties of an object file, and optionally of a query file. |
 | `generate-O` | Generate a random object dataset according to the configured parameters. |
 | `generate-Q <obj>` | Generate random queries (configured workloads) for the given object file. |

@@ -395,11 +395,78 @@ void ExecutionRunner::remove(const Cmd& cmd, StatsComp& statscomp)
 
     timer.start();
 
-    idx->remove(idsToDelete);
+    RecordId maxId = *max_element(idsToDelete.begin(), idsToDelete.end());
+    vector<bool> idsBitmap(maxId + 1, false);
+    for (auto id : idsToDelete) idsBitmap[id] = true;
+    idx->remove(idsBitmap);
 
     double delete_time = timer.stop();
 
     Log::w(1, "Deletion time [s]", delete_time);
+    Log::w(1, "Size [megabytes]", idx->getSize() / (1024.0 * 1024.0));
+    
+    delete idx;
+}
+
+
+void ExecutionRunner::softdelete(const Cmd& cmd, StatsComp& statscomp)
+{
+    Log::w(0, "Constructing Index and Soft-Deleting Records");
+
+    // Load original objects
+    auto O = Persistence::read_O_dat(cmd.file_O);
+    Log::w(1, "Records count", to_string(O.size()));
+    
+    // Compute statistics for original objects
+    auto Ostats = statscomp.analyze_O(O, cmd.file_O);
+
+    // Load IDs to soft-delete
+    auto idsToDelete = Persistence::read_Oids_dat(cmd.file_O2);
+    Log::w(1, "Records to soft-delete", to_string(idsToDelete.size()));
+    double ratio_org = (double)O.size() / (O.size() + idsToDelete.size()) * 100.0;
+    double ratio_del = (double)idsToDelete.size() / (O.size() + idsToDelete.size()) * 100.0;
+    
+    char ratio_str[100];
+    snprintf(ratio_str, sizeof(ratio_str), "%.2f%% Construction + %.2f%% Soft-Deletion", ratio_org, ratio_del);
+    Log::w(1, "Records ratio", string(ratio_str));
+    
+    auto idxschema = IGen().construct_I(optional<string>(cmd.idxschema));
+
+    // Construct initial index with original objects
+    Log::w(0, "Construction");
+
+    Log::w(1, "Schema", IdxSchemaSerializer::to_json(idxschema));
+
+    bool use_optimized = Cfg::get<bool>("use-templated-synthdex");
+    Log::w(2, "Using", use_optimized ? "SynthDexOpt (template-based)" : "SynthDex (runtime)");
+
+    IRIndex* idx;
+    Timer timer;
+    timer.start();
+    if (use_optimized)
+        idx = new SynthDexOpt(O, idxschema, Ostats);
+    else
+        idx = new SynthDex(O, idxschema, Ostats);
+    double construction_time = timer.stop();
+
+    Log::w(1, "Structure", idx->str());
+    Log::w(1, "Indexing time [s]", construction_time);
+    Log::w(1, "Size [megabytes]", idx->getSize() / (1024.0 * 1024.0));
+
+    // Soft-delete objects from index (replace IDs with tombstone -1)
+    Log::w(0, "Soft-Delete");
+
+    timer.start();
+
+    // Build bitmap once, pass by reference through the entire index tree
+    RecordId maxId = *max_element(idsToDelete.begin(), idsToDelete.end());
+    vector<bool> idsBitmap(maxId + 1, false);
+    for (auto id : idsToDelete) idsBitmap[id] = true;
+    idx->softdelete(idsBitmap);
+
+    double softdelete_time = timer.stop();
+
+    Log::w(1, "Soft-deletion time [s]", softdelete_time);
     Log::w(1, "Size [megabytes]", idx->getSize() / (1024.0 * 1024.0));
     
     delete idx;

@@ -124,6 +124,9 @@ public:
     void moveOut(const RangeQuery &q, vector<RelationId> &candidates);
     void moveOut_NoChecks(const RangeQuery &q, vector<RelationId> &candidates);
     void intersect(const RangeQuery &q, RelationId &candidates, vector<RelationId> &vec_candidates);
+
+    // Soft-deleting (tombstone: replace id with -1)
+    void softdelete(const vector<bool> &idsToDelete);
 };
 
 
@@ -194,6 +197,9 @@ public:
     void moveOut(const RangeQuery &q, RelationId &candidates);
     void intersect(const RangeQuery &q, RelationId &candidates);
     void intersectAndOutput(const RangeQuery &q, RelationId &candidates, RelationId &result);
+
+    // Soft-deleting (tombstone: replace id with -1)
+    void softdelete(const vector<bool> &idsToDelete);
 };
 
 

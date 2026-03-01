@@ -53,29 +53,30 @@ using namespace std;
 
 struct Cmd
 {
-	string cfg_dir   = "config";
-	bool   analyze   = false;
-	bool   query     = false;
-	bool   update    = false;
-	bool   remove    = false;
-	bool   gen_Os    = false;
-	bool   gen_O     = false;
-	bool   gen_Q     = false;
-	bool   setup     = false;
-	bool   learn     = false;
-	bool   predict   = false;
-	bool   synth     = false;
-	bool   score     = false;
-	bool   logs      = false;
-	bool   config    = false;
-	bool   help      = false;
-	int    logs_num  = 200;
-	string file_O    = "";
-	string file_Q    = "";
-	string file_O2   = "";
-	string idxschema = "";
-	string filter    = "";
-	string clean     = "";
+	string cfg_dir    = "config";
+	bool   analyze    = false;
+	bool   query      = false;
+	bool   update     = false;
+	bool   remove     = false;
+	bool   softdelete = false;
+	bool   gen_Os     = false;
+	bool   gen_O      = false;
+	bool   gen_Q      = false;
+	bool   setup      = false;
+	bool   learn      = false;
+	bool   predict    = false;
+	bool   synth      = false;
+	bool   score      = false;
+	bool   logs       = false;
+	bool   config     = false;
+	bool   help       = false;
+	int    logs_num   = 200;
+	string file_O     = "";
+	string file_Q     = "";
+	string file_O2    = "";
+	string idxschema  = "";
+	string filter     = "";
+	string clean      = "";
 };
 
 
@@ -118,6 +119,8 @@ private:
 	void update();
 
 	void remove();
+
+	void softdelete();
 
 	StatsComp statscomp;
 	IRelation O;

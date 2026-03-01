@@ -47,6 +47,7 @@
  ******************************************************************************/
 
 #include "hint_m.h"
+#include <unordered_set>
 
 
 
@@ -249,7 +250,7 @@ HINT_M_SubsSortByRecordId_CM::HINT_M_SubsSortByRecordId_CM(const Relation &R, co
     
     for (auto l = 0; l < this->height; l++)
     {
-        auto cnt = (int)(pow(2, this->numBits-l));
+        auto cnt = (1 << (this->numBits - l));
         
         //calloc allocates memory and sets each counter to 0
         this->pOrgsIn_sizes[l]  = (RecordId *)calloc(cnt, sizeof(RecordId));
@@ -269,7 +270,7 @@ HINT_M_SubsSortByRecordId_CM::HINT_M_SubsSortByRecordId_CM(const Relation &R, co
     
     for (auto l = 0; l < this->height; l++)
     {
-        auto cnt = (int)(pow(2, this->numBits-l));
+        auto cnt = (1 << (this->numBits - l));
         
         this->pOrgsInTmp[l]  = new Relation[cnt];
         this->pOrgsAftTmp[l] = new Relation[cnt];
@@ -313,7 +314,7 @@ HINT_M_SubsSortByRecordId_CM::HINT_M_SubsSortByRecordId_CM(const Relation &R, co
     this->pRepsAftTimestamps = new vector<pair<Timestamp, Timestamp> >*[this->height];
     for (auto l = 0; l < this->height; l++)
     {
-        auto cnt = (int)(pow(2, this->numBits-l));
+        auto cnt = (1 << (this->numBits - l));
         
         this->pOrgsInIds[l]  = new RelationId[cnt];
         this->pOrgsAftIds[l] = new RelationId[cnt];
@@ -384,7 +385,7 @@ void HINT_M_SubsSortByRecordId_CM::getStats()
 //    size_t sum = 0;
 //    for (auto l = 0; l < this->height; l++)
 //    {
-//        auto cnt = pow(2, this->numBits-l);
+//        auto cnt = (1 << (this->numBits - l));
 //
 //        this->numPartitions += cnt;
 //        for (int pid = 0; pid < cnt; pid++)
@@ -408,7 +409,7 @@ size_t HINT_M_SubsSortByRecordId_CM::getSize()
     
     for (auto l = 0; l < this->height; l++)
     {
-        auto cnt = pow(2, this->numBits-l);
+        auto cnt = (1 << (this->numBits - l));
         
         for (int pid = 0; pid < cnt; pid++)
         {
@@ -456,7 +457,7 @@ void HINT_M_SubsSortByRecordId_CM::extractRecords(Relation &R) const
     
     for (auto l = 0; l < this->height; l++)
     {
-        auto cnt = (int)(pow(2, this->numBits-l));
+        auto cnt = (1 << (this->numBits - l));
         
         for (int pid = 0; pid < cnt; pid++)
         {
@@ -497,6 +498,27 @@ void HINT_M_SubsSortByRecordId_CM::extractRecords(Relation &R) const
     // Update domain
     R.gstart = this->gstart;
     R.gend = this->gend;
+}
+
+
+void HINT_M_SubsSortByRecordId_CM::softdelete(const vector<bool> &idsToDelete)
+{
+    for (auto l = 0; l < this->height; l++)
+    {
+        auto cnt = (1 << (this->numBits - l));
+        
+        for (int pid = 0; pid < cnt; pid++)
+        {
+            for (auto &id : this->pOrgsInIds[l][pid])
+                if (inDeleteSet(id, idsToDelete)) id = -1;
+            for (auto &id : this->pOrgsAftIds[l][pid])
+                if (inDeleteSet(id, idsToDelete)) id = -1;
+            for (auto &id : this->pRepsInIds[l][pid])
+                if (inDeleteSet(id, idsToDelete)) id = -1;
+            for (auto &id : this->pRepsAftIds[l][pid])
+                if (inDeleteSet(id, idsToDelete)) id = -1;
+        }
+    }
 }
 
 

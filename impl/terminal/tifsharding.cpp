@@ -244,11 +244,8 @@ void tIFSHARDING::update(const IRelation &R)
 }
 
 
-void tIFSHARDING::remove(const RelationId &ids)
+void tIFSHARDING::remove(const vector<bool> &idsToDelete)
 {
-    // Build set of IDs to delete
-    unordered_set<RecordId> idsToDelete(ids.begin(), ids.end());
-    
     // Extract existing records from all sharded posting lists
     unordered_map<ElementId, Relation> extracted;
     
@@ -270,7 +267,7 @@ void tIFSHARDING::remove(const RelationId &ids)
     {
         tmpR.erase(
             remove_if(tmpR.begin(), tmpR.end(),
-                [&idsToDelete](const Record &rec) { return idsToDelete.count(rec.id) > 0; }),
+                [&idsToDelete](const Record &rec) { return inDeleteSet(rec.id, idsToDelete); }),
             tmpR.end());
     }
     
@@ -314,6 +311,24 @@ void tIFSHARDING::remove(const RelationId &ids)
         for (const auto& rec : tmpR)
         {
             list->addRecord(rec.id, rec.start, rec.end, impactListGap, tolerance);
+        }
+    }
+}
+
+
+void tIFSHARDING::softdelete(const vector<bool> &idsToDelete)
+{
+    // Replace matching record IDs with tombstone (-1) in all sharded posting lists
+    for (auto &[tid, list] : this->lists)
+    {
+        if (list == nullptr) continue;
+        for (auto &shard : *list)
+        {
+            for (auto &entry : shard)
+            {
+                if (inDeleteSet(entry.id, idsToDelete))
+                    entry.id = -1;
+            }
         }
     }
 }

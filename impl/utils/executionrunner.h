@@ -71,6 +71,7 @@ public:
 
     static void update(const Cmd& cmd, StatsComp& statscomp);
     static void remove(const Cmd& cmd, StatsComp& statscomp);
+    static void softdelete(const Cmd& cmd, StatsComp& statscomp);
     static void synthesize(const Cmd& cmd,
         const vector<tuple<string,vector<RangeIRQuery>>>& Q,
         const OStats& Ostats, StatsComp& statscomp);

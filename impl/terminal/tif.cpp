@@ -160,17 +160,15 @@ void tIF::update(const IRelation &R)
 }
 
 
-void tIF::remove(const RelationId &ids)
+void tIF::remove(const vector<bool> &idsToDelete)
 {
     // Remove records by ID from posting lists
-    unordered_set<RecordId> idsToDelete(ids.begin(), ids.end());
-    
     for (auto &[tid, list] : this->lists)
     {
         // Remove records with matching IDs
         list.erase(
             remove_if(list.begin(), list.end(),
-                [&idsToDelete](const Record &rec) { return idsToDelete.count(rec.id) > 0; }),
+                [&idsToDelete](const Record &rec) { return inDeleteSet(rec.id, idsToDelete); }),
             list.end());
         
         // Recompute domain boundaries
@@ -183,6 +181,20 @@ void tIF::remove(const RelationId &ids)
                 list.gstart = min(list.gstart, rec.start);
                 list.gend = max(list.gend, rec.end);
             }
+        }
+    }
+}
+
+
+void tIF::softdelete(const vector<bool> &idsToDelete)
+{
+    // Replace matching record IDs with tombstone (-1) in all posting lists
+    for (auto &[tid, list] : this->lists)
+    {
+        for (auto &rec : list)
+        {
+            if (inDeleteSet(rec.id, idsToDelete))
+                rec.id = -1;
         }
     }
 }

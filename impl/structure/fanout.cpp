@@ -97,12 +97,22 @@ void RefinementFanout_ElemFreq::update(const IRelation &R)
 }
 
 
-void RefinementFanout_ElemFreq::remove(const RelationId &ids)
+void RefinementFanout_ElemFreq::remove(const vector<bool> &idsToDelete)
 {
     // Propagate deletions to all child refinement nodes
     for (const auto &[boundaries, refinement] : this->refinements)
     {
-        refinement->remove(ids);
+        refinement->remove(idsToDelete);
+    }
+}
+
+
+void RefinementFanout_ElemFreq::softdelete(const vector<bool> &idsToDelete)
+{
+    // Propagate soft-deletions to all child refinement nodes
+    for (const auto &[boundaries, refinement] : this->refinements)
+    {
+        refinement->softdelete(idsToDelete);
     }
 }
 
@@ -154,12 +164,22 @@ void SplitFanout_Temporal::update(const IRelation &R)
 }
 
 
-void SplitFanout_Temporal::remove(const RelationId &ids)
+void SplitFanout_Temporal::remove(const vector<bool> &idsToDelete)
 {
     // Propagate deletions to all temporal pages
     for (const auto &[boundaries, page] : this->pages)
     {
-        page->remove(ids);
+        page->remove(idsToDelete);
+    }
+}
+
+
+void SplitFanout_Temporal::softdelete(const vector<bool> &idsToDelete)
+{
+    // Propagate soft-deletions to all temporal pages
+    for (const auto &[boundaries, page] : this->pages)
+    {
+        page->softdelete(idsToDelete);
     }
 }
 
@@ -262,14 +282,24 @@ void SliceFanout_Temporal::update(const IRelation &R)
 }
 
 
-void SliceFanout_Temporal::remove(const RelationId &ids)
+void SliceFanout_Temporal::remove(const vector<bool> &idsToDelete)
 {
     // Propagate deletions to all temporal pages
     // Note: With slicing, the same record may exist in multiple partitions,
     // so we remove from all partitions to ensure complete deletion
     for (const auto &[boundaries, page] : this->pages)
     {
-        page->remove(ids);
+        page->remove(idsToDelete);
+    }
+}
+
+
+void SliceFanout_Temporal::softdelete(const vector<bool> &idsToDelete)
+{
+    // Propagate soft-deletions to all temporal pages
+    for (const auto &[boundaries, page] : this->pages)
+    {
+        page->softdelete(idsToDelete);
     }
 }
 
@@ -308,10 +338,17 @@ void MoveoutRefinementHybrid::update(const IRelation &R)
 }
 
 
-void MoveoutRefinementHybrid::remove(const RelationId &ids)
+void MoveoutRefinementHybrid::remove(const vector<bool> &idsToDelete)
 {
-    this->moveout_node->remove(ids);
-    this->refine_node->remove(ids);
+    this->moveout_node->remove(idsToDelete);
+    this->refine_node->remove(idsToDelete);
+}
+
+
+void MoveoutRefinementHybrid::softdelete(const vector<bool> &idsToDelete)
+{
+    this->moveout_node->softdelete(idsToDelete);
+    this->refine_node->softdelete(idsToDelete);
 }
 
 

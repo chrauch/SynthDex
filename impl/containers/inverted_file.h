@@ -61,6 +61,9 @@ public:
         
     // Querying
     virtual void query(const RangeIRQuery &q, RelationId &result) { };
+
+    // Soft-deleting (tombstone)
+    virtual void softdelete(const vector<bool> &idsToDelete) { };
 };
 
 
@@ -89,5 +92,8 @@ public:
     bool moveOut(const RangeIRQuery &q, RelationId &candidates);
     bool intersect(const RangeIRQuery &q, const unsigned int elemoff, RelationId &candidates);
     void intersectAndOutput(const RangeIRQuery &q, const unsigned int off, RelationId &candidates, RelationId &result);
+
+    // Soft-deleting (tombstone: replace id with -1)
+    void softdelete(const vector<bool> &idsToDelete);
 };
 #endif // _INVERTED_FILE_H_

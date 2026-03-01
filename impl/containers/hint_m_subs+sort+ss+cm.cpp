@@ -48,6 +48,7 @@
  ******************************************************************************/
 
 #include "hint_m.h"
+#include <unordered_set>
 
 
 
@@ -313,7 +314,7 @@ HINT_M_SubsSort_SS_CM::HINT_M_SubsSort_SS_CM(const Relation &R, const unsigned i
     
     for (auto l = 0; l < this->height; l++)
     {
-        auto cnt = (int)(pow(2, this->numBits-l));
+        auto cnt = (1 << (this->numBits - l));
         
         //calloc allocates memory and sets each counter to 0
         this->pOrgsIn_sizes[l]  = (RecordId *)calloc(cnt, sizeof(RecordId));
@@ -338,7 +339,7 @@ HINT_M_SubsSort_SS_CM::HINT_M_SubsSort_SS_CM(const Relation &R, const unsigned i
     
     for (auto l = 0; l < this->height; l++)
     {
-        auto cnt = (int)(pow(2, this->numBits-l));
+        auto cnt = (1 << (this->numBits - l));
         size_t sumOin = 0, sumOaft = 0, sumRin = 0, sumRaft = 0;
         
         for (auto pId = 0; pId < cnt; pId++)
@@ -372,7 +373,7 @@ HINT_M_SubsSort_SS_CM::HINT_M_SubsSort_SS_CM(const Relation &R, const unsigned i
     // Step 4: sort partition contents; first need to reset the offsets
     for (auto l = 0; l < this->height; l++)
     {
-        auto cnt = (int)(pow(2, this->numBits-l));
+        auto cnt = (1 << (this->numBits - l));
         size_t sumOin = 0, sumOaft = 0, sumRin = 0, sumRaft = 0;
         
         for (auto pId = 0; pId < cnt; pId++)
@@ -394,7 +395,7 @@ HINT_M_SubsSort_SS_CM::HINT_M_SubsSort_SS_CM(const Relation &R, const unsigned i
     
     for (auto l = 0; l < this->height; l++)
     {
-        auto cnt = (int)(pow(2, this->numBits-l));
+        auto cnt = (1 << (this->numBits - l));
         for (auto pId = 0; pId < cnt; pId++)
         {
             sort(this->pOrgsInTmp[l].begin()+this->pOrgsIn_offsets[l][pId], this->pOrgsInTmp[l].begin()+this->pOrgsIn_offsets[l][pId+1]);
@@ -485,7 +486,7 @@ HINT_M_SubsSort_SS_CM::HINT_M_SubsSort_SS_CM(const Relation &R, const unsigned i
     this->pRepsAft_ioffsets = new Offsets_SS_CM[this->height];
     for (int l = this->height-1; l > -1; l--)
     {
-        auto cnt = (int)(pow(2, this->numBits-l));
+        auto cnt = (1 << (this->numBits - l));
         size_t sumOin = 0, sumOaft = 0, sumRin = 0, sumRaft = 0;
         
         for (auto pId = 0; pId < cnt; pId++)
@@ -578,12 +579,29 @@ HINT_M_SubsSort_SS_CM::HINT_M_SubsSort_SS_CM(const Relation &R, const unsigned i
 }
 
 
+void HINT_M_SubsSort_SS_CM::softdelete(const vector<bool> &idsToDelete)
+{
+    // Replace matching record IDs with tombstone (-1) in all flat id arrays
+    for (auto l = 0; l < this->height; l++)
+    {
+        for (auto &id : this->pOrgsInIds[l])
+            if (inDeleteSet(id, idsToDelete)) id = -1;
+        for (auto &id : this->pOrgsAftIds[l])
+            if (inDeleteSet(id, idsToDelete)) id = -1;
+        for (auto &id : this->pRepsInIds[l])
+            if (inDeleteSet(id, idsToDelete)) id = -1;
+        for (auto &id : this->pRepsAftIds[l])
+            if (inDeleteSet(id, idsToDelete)) id = -1;
+    }
+}
+
+
 void HINT_M_SubsSort_SS_CM::getStats()
 {
 //    size_t sum = 0;
 //    for (auto l = 0; l < this->height; l++)
 //    {
-//        auto cnt = pow(2, this->numBits-l);
+//        auto cnt = (1 << (this->numBits - l));
 //
 //        this->numPartitions += cnt;
 //

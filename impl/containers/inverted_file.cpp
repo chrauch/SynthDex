@@ -37,6 +37,7 @@
  ******************************************************************************/
 
 #include "inverted_file.h"
+#include <unordered_set>
 
 
 
@@ -173,6 +174,20 @@ void InvertedFile::intersectAndOutput(const RangeIRQuery &q, const unsigned int 
                 result.push_back(*iterL);
                 iterL++;
             }
+        }
+    }
+}
+
+
+void InvertedFile::softdelete(const vector<bool> &idsToDelete)
+{
+    // Replace matching record IDs with tombstone (-1) in all posting lists
+    for (auto &[tid, list] : this->lists)
+    {
+        for (auto &rid : list)
+        {
+            if (inDeleteSet(rid, idsToDelete))
+                rid = -1;
         }
     }
 }

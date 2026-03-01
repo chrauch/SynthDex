@@ -88,7 +88,10 @@ public:
     void update(const IRelation &R) override;
 
     // Deleting
-    void remove(const RelationId &ids) override;
+    void remove(const vector<bool> &idsToDelete) override;
+
+    // Soft-deleting (tombstone: replace id with -1)
+    void softdelete(const vector<bool> &idsToDelete) override;
 };
 
 

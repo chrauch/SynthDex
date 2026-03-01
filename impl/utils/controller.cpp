@@ -119,6 +119,12 @@ void Controller::start()
         return;
     }
 
+    if (this->cmd.softdelete)
+    {
+        this->softdelete();
+        return;
+    }
+
     if (this->cmd.gen_O)
     {
         int o_num = Cfg::get<int>("o.num");
@@ -220,6 +226,12 @@ void Controller::update()
 void Controller::remove()
 {
     ExecutionRunner::remove(this->cmd, this->statscomp);
+}
+
+
+void Controller::softdelete()
+{
+    ExecutionRunner::softdelete(this->cmd, this->statscomp);
 }
 
 

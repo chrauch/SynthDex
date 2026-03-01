@@ -261,11 +261,8 @@ void tIFSLICING::update(const IRelation &R)
 }
 
 
-void tIFSLICING::remove(const RelationId &ids)
+void tIFSLICING::remove(const vector<bool> &idsToDelete)
 {
-    // Build set of IDs to delete
-    unordered_set<RecordId> idsToDelete(ids.begin(), ids.end());
-    
     // For each element, extract records, filter out deleted ones, and rebuild grid
     for (auto &[tid, grid] : this->lists)
     {
@@ -276,7 +273,7 @@ void tIFSLICING::remove(const RelationId &ids)
         // Filter out records to delete
         records.erase(
             remove_if(records.begin(), records.end(),
-                [&idsToDelete](const Record &rec) { return idsToDelete.count(rec.id) > 0; }),
+                [&idsToDelete](const Record &rec) { return inDeleteSet(rec.id, idsToDelete); }),
             records.end());
         
         // If no records left, skip (could delete element entirely)
@@ -307,6 +304,16 @@ void tIFSLICING::remove(const RelationId &ids)
         }
         
         delete oldGrid;
+    }
+}
+
+
+void tIFSLICING::softdelete(const vector<bool> &idsToDelete)
+{
+    // Propagate soft-delete to all grid structures
+    for (auto &[tid, grid] : this->lists)
+    {
+        grid->softdelete(idsToDelete);
     }
 }
 

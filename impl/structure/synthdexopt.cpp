@@ -698,9 +698,15 @@ void SynthDexOpt::update(const IRelation &R)
 }
 
 
-void SynthDexOpt::remove(const RelationId &ids)
+void SynthDexOpt::remove(const vector<bool> &idsToDelete)
 {
-    this->index->remove(ids);
+    this->index->remove(idsToDelete);
+}
+
+
+void SynthDexOpt::softdelete(const vector<bool> &idsToDelete)
+{
+    this->index->softdelete(idsToDelete);
 }
 
 

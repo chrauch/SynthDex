@@ -396,17 +396,28 @@ void TemporalInvertedFile::update(const IRelation &R)
 }
 
 
-void TemporalInvertedFile::remove(const RelationId &ids)
+void TemporalInvertedFile::remove(const vector<bool> &idsToDelete)
 {
-    // Build set of IDs to delete
-    unordered_set<RecordId> idsToDelete(ids.begin(), ids.end());
-    
     // Remove records from all posting lists
     for (auto &[tid, list] : this->lists)
     {
         list.erase(
             remove_if(list.begin(), list.end(),
-                [&idsToDelete](const Record &rec) { return idsToDelete.count(rec.id) > 0; }),
+                [&idsToDelete](const Record &rec) { return inDeleteSet(rec.id, idsToDelete); }),
             list.end());
+    }
+}
+
+
+void TemporalInvertedFile::softdelete(const vector<bool> &idsToDelete)
+{
+    // Replace matching record IDs with tombstone (-1) in all posting lists
+    for (auto &[tid, list] : this->lists)
+    {
+        for (auto &rec : list)
+        {
+            if (inDeleteSet(rec.id, idsToDelete))
+                rec.id = -1;
+        }
     }
 }

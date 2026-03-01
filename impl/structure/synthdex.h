@@ -49,7 +49,9 @@ public:
     
     void update(const IRelation &R);
     
-    void remove(const RelationId &ids);
+    void remove(const vector<bool> &idsToDelete);
+
+    void softdelete(const vector<bool> &idsToDelete);
     
     size_t getSize();
     

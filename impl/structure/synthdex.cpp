@@ -472,9 +472,15 @@ void SynthDex::update(const IRelation &R)
 }
 
 
-void SynthDex::remove(const RelationId &ids)
+void SynthDex::remove(const vector<bool> &idsToDelete)
 {
-    this->index->remove(ids);
+    this->index->remove(idsToDelete);
+}
+
+
+void SynthDex::softdelete(const vector<bool> &idsToDelete)
+{
+    this->index->softdelete(idsToDelete);
 }
 
 

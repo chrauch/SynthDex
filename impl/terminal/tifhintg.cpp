@@ -263,11 +263,8 @@ void tIFHINTg::update(const IRelation &R)
 }
 
 
-void tIFHINTg::remove(const RelationId &ids)
+void tIFHINTg::remove(const vector<bool> &idsToDelete)
 {
-    // Build set of IDs to delete
-    unordered_set<RecordId> idsToDelete(ids.begin(), ids.end());
-    
     // For each element, extract records, filter out deleted ones, and rebuild HINT
     for (auto &[tid, hint] : this->hlists)
     {
@@ -278,7 +275,7 @@ void tIFHINTg::remove(const RelationId &ids)
         // Filter out records to delete
         records.erase(
             remove_if(records.begin(), records.end(),
-                [&idsToDelete](const Record &rec) { return idsToDelete.count(rec.id) > 0; }),
+                [&idsToDelete](const Record &rec) { return inDeleteSet(rec.id, idsToDelete); }),
             records.end());
         
         // If no records left, we could remove this element entirely, but keep empty HINT for now
@@ -309,6 +306,16 @@ void tIFHINTg::remove(const RelationId &ids)
         }
         
         delete oldHint;
+    }
+}
+
+
+void tIFHINTg::softdelete(const vector<bool> &idsToDelete)
+{
+    // Propagate soft-delete to all HINT structures
+    for (auto &[tid, hint] : this->hlists)
+    {
+        hint->softdelete(idsToDelete);
     }
 }
 

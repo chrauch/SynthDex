@@ -285,7 +285,7 @@ irHINTa::irHINTa(
 
     for (auto l = 0; l < this->height; l++)
     {
-        auto cnt = (int)(pow(2, this->numBits-l));
+        auto cnt = (1 << (this->numBits - l));
         
         this->pOrgsIn_lsizes[l]  = new unordered_map<ElementId, ElementId>[cnt];
         this->pOrgsAft_lsizes[l] = new unordered_map<ElementId, ElementId>[cnt];
@@ -304,7 +304,7 @@ irHINTa::irHINTa(
     this->pRepsAft = new TemporalInvertedFile*[this->height];
     for (auto l = 0; l < this->height; l++)
     {
-        auto cnt = (int)(pow(2, this->numBits-l));
+        auto cnt = (1 << (this->numBits - l));
         
         this->pOrgsIn[l]  = new TemporalInvertedFile[cnt];
         this->pOrgsAft[l] = new TemporalInvertedFile[cnt];
@@ -366,7 +366,7 @@ size_t irHINTa::getSize()
     // TemporalInvertedFile arrays at each level and their contents
     for (auto l = 0; l < this->height; l++)
     {
-        auto cnt = pow(2, this->numBits-l);
+        auto cnt = (1 << (this->numBits - l));
         
         // Size of the TemporalInvertedFile arrays themselves
         size += sizeof(TemporalInvertedFile) * cnt * 4;  // Four arrays per level
@@ -411,7 +411,7 @@ void irHINTa::extractRecords(IRelation &R) const
     
     for (auto l = 0; l < this->height; l++)
     {
-        auto cnt = pow(2, this->numBits - l);
+        auto cnt = (1 << (this->numBits - l));
         
         for (int pid = 0; pid < cnt; pid++)
         {
@@ -511,7 +511,7 @@ void irHINTa::update(const IRelation &R)
         
         for (auto l = 0; l < this->height; l++)
         {
-            auto cnt = (int)(pow(2, this->numBits - l));
+            auto cnt = (1 << (this->numBits - l));
             
             this->pOrgsIn[l]  = new TemporalInvertedFile[cnt];
             this->pOrgsAft[l] = new TemporalInvertedFile[cnt];
@@ -526,11 +526,8 @@ void irHINTa::update(const IRelation &R)
 }
 
 
-void irHINTa::remove(const RelationId &ids)
+void irHINTa::remove(const vector<bool> &idsToDelete)
 {
-    // Build set of IDs to delete
-    unordered_set<RecordId> idsToDelete(ids.begin(), ids.end());
-    
     // Extract all existing records
     IRelation existingRecords;
     this->extractRecords(existingRecords);
@@ -538,7 +535,7 @@ void irHINTa::remove(const RelationId &ids)
     // Filter out records to delete
     existingRecords.erase(
         remove_if(existingRecords.begin(), existingRecords.end(),
-            [&idsToDelete](const IRecord &rec) { return idsToDelete.count(rec.id) > 0; }),
+            [&idsToDelete](const IRecord &rec) { return inDeleteSet(rec.id, idsToDelete); }),
         existingRecords.end());
     
     // If no records left, nothing to rebuild
@@ -580,7 +577,7 @@ void irHINTa::remove(const RelationId &ids)
     
     for (auto l = 0; l < this->height; l++)
     {
-        auto cnt = (int)(pow(2, this->numBits - l));
+        auto cnt = (1 << (this->numBits - l));
         
         this->pOrgsIn[l]  = new TemporalInvertedFile[cnt];
         this->pOrgsAft[l] = new TemporalInvertedFile[cnt];
@@ -591,6 +588,23 @@ void irHINTa::remove(const RelationId &ids)
     // Rebuild with filtered records
     for (const IRecord &r : existingRecords)
         this->updatePartitions(r);
+}
+
+
+void irHINTa::softdelete(const vector<bool> &idsToDelete)
+{
+    // Propagate soft-delete to all temporal inverted file partitions
+    for (auto l = 0; l < this->height; l++)
+    {
+        auto cnt = (1 << (this->numBits - l));
+        for (int pid = 0; pid < cnt; pid++)
+        {
+            this->pOrgsIn[l][pid].softdelete(idsToDelete);
+            this->pOrgsAft[l][pid].softdelete(idsToDelete);
+            this->pRepsIn[l][pid].softdelete(idsToDelete);
+            this->pRepsAft[l][pid].softdelete(idsToDelete);
+        }
+    }
 }
 
 

@@ -70,7 +70,10 @@ public:
     virtual void update(const IRelation &R) = 0;
 
     // Deleting
-    virtual void remove(const RelationId &ids) = 0;
+    virtual void remove(const vector<bool> &idsToDelete) = 0;
+
+    // Soft-deleting (tombstone: replace id with -1)
+    virtual void softdelete(const vector<bool> &idsToDelete) = 0;
 
     virtual ~IRIndex() {};
 

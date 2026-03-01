@@ -191,6 +191,51 @@ RUNS = {
             {"file": DIR / "idxcfg/SynthDex-project.digenetica.json"}
         ],
     },
+    "eclog-softdelete": {
+        "skip": False,
+        "mode": "softdelete",
+        "data": _E / "ECOM-LOG.dat",
+        "work": [
+            _E / "ECOM-LOG.randomIDs-1percent.dat",
+        ],
+        "pre_script": {
+            "file": DIR / "helpers/extract_relation_ids.py",
+            "args": [_E / "ECOM-LOG.dat", "1"]
+        },
+        "configs": [
+            {"file": DIR / "idxcfg/SynthDex-project.eclog.json"}
+        ],
+    },
+    "wikipedia-softdelete": {
+        "skip": False,
+        "mode": "softdelete",
+        "data": _W / "WIKIPEDIA-100K+_random-articles-all-revisions_[2020-2024).dat",
+        "work": [
+            _W / "WIKIPEDIA-100K+_random-articles-all-revisions_[2020-2024).randomIDs-1percent.dat",
+        ],
+        "pre_script": {
+            "file": DIR / "helpers/extract_relation_ids.py",
+            "args": [_W / "WIKIPEDIA-100K+_random-articles-all-revisions_[2020-2024).dat", "1"]
+        },
+        "configs": [
+            {"file": DIR / "idxcfg/SynthDex-project.wikipedia.json"}
+        ],
+    },
+    "digenetica-softdelete": {
+        "skip": False,
+        "mode": "softdelete",
+        "data": _D / "DIGINETICA-sessions_withProducts.dat",
+        "work": [
+            _D / "DIGINETICA-sessions_withProducts.randomIDs-1percent.dat",
+        ],
+        "pre_script": {
+            "file": DIR / "helpers/extract_relation_ids.py",
+            "args": [_D / "DIGINETICA-sessions_withProducts.dat", "1"]
+        },
+        "configs": [
+            {"file": DIR / "idxcfg/SynthDex-project.digenetica.json"}
+        ],
+    },
 
 }
 

@@ -79,6 +79,9 @@ public:
     void moveOut_checkBoth(const RangeQuery &q, RelationId &candidates);
     void interesect(const RangeQuery &q, RelationId &candidates);
     void interesectAndOutput(const RangeQuery &q, RelationId &candidates, RelationId &result);
+
+    // Soft-deleting (tombstone: replace id with -1)
+    void softdelete(const vector<bool> &idsToDelete);
 };
 
 

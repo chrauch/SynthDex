@@ -97,9 +97,14 @@ public:
         update_children<0>(R);
     }
 
-    inline void remove(const RelationId &ids) override
+    inline void remove(const vector<bool> &idsToDelete) override
     {
-        remove_children<0>(ids);
+        remove_children<0>(idsToDelete);
+    }
+
+    inline void softdelete(const vector<bool> &idsToDelete) override
+    {
+        softdelete_children<0>(idsToDelete);
     }
 
     size_t getSize() override
@@ -188,12 +193,24 @@ private:
     // Optimized remove using compile-time recursion
     template<size_t I = 0>
     __attribute__((always_inline)) inline
-    void remove_children(const RelationId &ids) noexcept
+    void remove_children(const vector<bool> &idsToDelete) noexcept
     {
         if constexpr (I < sizeof...(Children))
         {
-            get<I>(refinements).second->remove(ids);
-            remove_children<I + 1>(ids);
+            get<I>(refinements).second->remove(idsToDelete);
+            remove_children<I + 1>(idsToDelete);
+        }
+    }
+
+    // Optimized softdelete using compile-time recursion
+    template<size_t I = 0>
+    __attribute__((always_inline)) inline
+    void softdelete_children(const vector<bool> &idsToDelete) noexcept
+    {
+        if constexpr (I < sizeof...(Children))
+        {
+            get<I>(refinements).second->softdelete(idsToDelete);
+            softdelete_children<I + 1>(idsToDelete);
         }
     }
 
@@ -234,9 +251,14 @@ public:
         update_pages<0>(R);
     }
 
-    inline void remove(const RelationId &ids) override
+    inline void remove(const vector<bool> &idsToDelete) override
     {
-        remove_pages<0>(ids);
+        remove_pages<0>(idsToDelete);
+    }
+
+    inline void softdelete(const vector<bool> &idsToDelete) override
+    {
+        softdelete_pages<0>(idsToDelete);
     }
 
     size_t getSize() override
@@ -304,12 +326,24 @@ private:
     // Optimized remove using compile-time recursion
     template<size_t I = 0>
     __attribute__((always_inline)) inline
-    void remove_pages(const RelationId &ids) noexcept
+    void remove_pages(const vector<bool> &idsToDelete) noexcept
     {
         if constexpr (I < sizeof...(Children))
         {
-            get<I>(pages).second->remove(ids);
-            remove_pages<I + 1>(ids);
+            get<I>(pages).second->remove(idsToDelete);
+            remove_pages<I + 1>(idsToDelete);
+        }
+    }
+
+    // Optimized softdelete using compile-time recursion
+    template<size_t I = 0>
+    __attribute__((always_inline)) inline
+    void softdelete_pages(const vector<bool> &idsToDelete) noexcept
+    {
+        if constexpr (I < sizeof...(Children))
+        {
+            get<I>(pages).second->softdelete(idsToDelete);
+            softdelete_pages<I + 1>(idsToDelete);
         }
     }
 
@@ -364,7 +398,8 @@ public:
     
     void query(const RangeIRQuery &q, RelationId &result) override;
     void update(const IRelation &R) override;
-    void remove(const RelationId &ids) override;
+    void remove(const vector<bool> &idsToDelete) override;
+    void softdelete(const vector<bool> &idsToDelete) override;
     size_t getSize() override;
     string str() const;
     

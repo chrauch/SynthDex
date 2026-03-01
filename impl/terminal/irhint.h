@@ -106,7 +106,10 @@ public:
     void update(const IRelation &R);
 
     // Deleting
-    void remove(const RelationId &ids);
+    void remove(const vector<bool> &idsToDelete);
+
+    // Soft-deleting (tombstone: replace id with -1)
+    void softdelete(const vector<bool> &idsToDelete);
 
     void move_out(
         const RangeIRQuery &q,

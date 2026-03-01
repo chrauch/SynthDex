@@ -77,6 +77,13 @@ typedef int RecordId;
 typedef int Timestamp;
 typedef int ElementId;
 
+// Fast bitmap membership test for deletion/softdelete operations.
+// Handles negative IDs (tombstones) safely via unsigned cast trick:
+// casting -1 to size_t yields SIZE_MAX which is always >= bitmap.size().
+inline bool inDeleteSet(RecordId id, const vector<bool> &bitmap) {
+    return static_cast<size_t>(id) < bitmap.size() && bitmap[id];
+}
+
 
 struct RangeQuery
 {

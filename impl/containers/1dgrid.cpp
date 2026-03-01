@@ -37,6 +37,7 @@
  ******************************************************************************/
 
 #include "1dgrid.h"
+#include <unordered_set>
 
 
 
@@ -193,6 +194,20 @@ void OneDimensionalGrid::extractRecords(Relation &R) const
     // Update domain
     R.gstart = this->gstart;
     R.gend = this->gend;
+}
+
+
+void OneDimensionalGrid::softdelete(const vector<bool> &idsToDelete)
+{
+    // Replace matching record IDs with tombstone (-1) in all partitions
+    for (auto pId = 0; pId < this->numPartitions; pId++)
+    {
+        for (auto &rec : this->pRecs[pId])
+        {
+            if (inDeleteSet(rec.id, idsToDelete))
+                rec.id = -1;
+        }
+    }
 }
 
 
