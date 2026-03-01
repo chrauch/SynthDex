@@ -107,7 +107,7 @@ tIFSHARDING::tIFSHARDING(
             // Dynamic mode: fewer records -> higher relaxation -> fewer shards
             double log_size = log10(records.size());
             double exponent = -this->dynratio * max(0.0, log_size - this->dynbase);
-            float list_relaxation = max(1.0f, min(100.0f, static_cast<float>(100.0 * exp(exponent))));
+            float list_relaxation = min(100.0f, static_cast<float>(100.0 * exp(exponent)));
             tolerance = domainSize * (list_relaxation / 100.0);
             
             //if (tid == 1 
@@ -229,7 +229,7 @@ void tIFSHARDING::update(const IRelation &R)
             // Dynamic mode: fewer records → higher relaxation → fewer shards
             double log_size = log10(tmpR.size());
             double exponent = -this->dynratio * max(0.0, log_size - this->dynbase);
-            float list_relaxation = max(1.0f, min(100.0f, static_cast<float>(100.0 * exp(exponent))));
+            float list_relaxation = min(100.0f, static_cast<float>(100.0 * exp(exponent)));
             tolerance = domainSize * (list_relaxation / 100.0);
         }
         
@@ -277,7 +277,11 @@ void tIFSHARDING::remove(const RelationId &ids)
     // Rebuild sharded posting lists with filtered data
     for (auto& [tid, tmpR] : extracted)
     {
-        if (tmpR.empty()) continue;
+        if (tmpR.empty())
+        {
+            this->lists.erase(tid);
+            continue;
+        }
         
         // Sort by start time (required for addRecord assumption about temporal ordering)
         sort(tmpR.begin(), tmpR.end(), [](const Record &lhs, const Record &rhs) {
@@ -300,7 +304,7 @@ void tIFSHARDING::remove(const RelationId &ids)
             // Dynamic mode: fewer records → higher relaxation → fewer shards
             double log_size = log10(tmpR.size());
             double exponent = -this->dynratio * max(0.0, log_size - this->dynbase);
-            float list_relaxation = max(1.0f, min(100.0f, static_cast<float>(100.0 * exp(exponent))));
+            float list_relaxation = min(100.0f, static_cast<float>(100.0 * exp(exponent)));
             tolerance = domainSize * (list_relaxation / 100.0);
         }
         

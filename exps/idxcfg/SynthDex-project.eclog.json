@@ -1,0 +1,68 @@
+{
+	"1": {
+		"method": "tif;basic"
+	},
+	"2": {
+		"method": "tif;slicing;static;50"
+	},
+	"3": {
+		"method": "tif;sharding;static;2"
+	},
+	"4": {
+		"method": "tif;hint;mrg;static;5"
+	},
+	"5": {
+		"method": "irhint;perf;13"
+	},
+	"BASE": {
+		"refine": "elemfreq",
+		"fanout": [{"range": "0.89-1", "method": "tif;basic"}, {"range": "0.77-0.89", "method": "tif;hint;mrg;dyn;1.72;3.15"}, {"range": "0-0.77", "method": "irhint;perf;15.28"}]
+	},
+	"LOW": {
+		"refine": "elemfreq",
+		"fanout": [{"range": "0.84-1", "method": "tif;basic"}, {"range": "0.73-0.84", "method": "tif;slicing;dyn;1.92;0.50"}, {"range": "0-0.73", "method": "irhint;perf;9"}]
+	},
+	"HIGH": {
+		"refine": "elemfreq",
+		"fanout": [{"range": "0.89-1", "method": "tif;basic"}, {"range": "0.77-0.89", "method": "tif;hint;mrg;dyn;1.72;3.15"}, {"range": "0-0.77", "method": "irhint;perf;15.28"}]
+	},
+	"SHORT": {
+		"refine": "elemfreq",
+		"fanout": [{"range": "0.83-1", "method": "tif;basic"}, {"range": "0.76-0.83", "method": "tif;slicing;dyn;2.08;0.66"}, {"range": "0-0.76", "method": "irhint;perf;15.62"}]
+	},
+	"LONG": {
+		"refine": "elemfreq",
+		"fanout": [{"range": "0.85-1", "method": "tif;slicing;dyn;2.08;0.53"}, {"range": "0-0.85", "method": "irhint;perf;13"}]
+	},
+	"FEW": {
+		"refine": "elemfreq",
+		"fanout": [{"range": "0.89-1", "method": "tif;basic"}, {"range": "0.77-0.89", "method": "tif;hint;mrg;dyn;1.72;3.15"}, {"range": "0-0.77", "method": "irhint;perf;15.28"}]
+	},
+	"MANY": {
+		"refine": "elemfreq",
+		"fanout": [{"range": "0.87-1", "method": "tif;basic"}, {"range": "0.77-0.87", "method": "tif;slicing;dyn;2.00;0.75"}, {"range": "0-0.77", "method": "irhint;perf;14.27"}]
+	},
+	"RND": {
+		"split": "temporal",
+		"fanout": [{"range": "0.87-1", "method": "irhint;perf;4"}, {"range": "0-0.87", "method": "irhint;perf;5"}, {"range": "0-1", "method": "irhint;perf;3"}]
+	},
+	"SELECTIVE": {
+		"method": "tif;hint;mrg;dyn;1.37;2.57"
+	},
+	"SELECTIVE+BROAD": {
+		"refine": "elemfreq",
+		"fanout": [{"range": "0.83-1", "method": "tif;basic"}, {"range": "0.76-0.83", "method": "tif;slicing;dyn;2.08;0.66"}, {"range": "0-0.76", "method": "irhint;perf;15.62"}]
+	},
+	"SELECTIVEWIDE": {
+		"refine": "elemfreq",
+		"fanout": [{"range": "0.84-1", "method": "tif;basic"}, {"range": "0.73-0.84", "method": "tif;slicing;dyn;1.92;0.50"}, {"range": "0-0.73", "method": "irhint;perf;9"}]
+	},
+	"SELECTIVEWIDE+BROADNARROW": {
+		"refine": "elemfreq",
+		"fanout": [{"range": "0.89-1", "method": "tif;basic"}, {"range": "0.77-0.89", "method": "tif;hint;mrg;dyn;1.72;3.15"}, {"range": "0-0.77", "method": "irhint;perf;15.28"}]
+	},
+	"HOT+COLD": {
+		"refine": "elemfreq",
+		"fanout": [{"range": "0.83-1", "method": "tif;basic"}, {"range": "0.76-0.83", "method": "tif;slicing;dyn;2.08;0.66"}, {"range": "0-0.76", "method": "irhint;perf;15.62"}]
+	}
+}

@@ -1,0 +1,61 @@
+{
+	"1": {
+		"method": "tif;basic"
+	},
+	"2": {
+		"method": "tif;slicing;static;50"
+	},
+	"3": {
+		"method": "tif;sharding;static;2"
+	},
+	"4": {
+		"method": "tif;hint;mrg;static;5"
+	},
+	"5": {
+		"method": "irhint;perf;13"
+	},
+	"BASE": {
+		"slice": "temporal",
+		"fanout": [{"range": "0-0.72", "method": "irhint;perf;10"}, {"range": "0.72-1", "method": "tif;basic"}]
+	},
+	"LOW": {
+		"refine": "elemfreq",
+		"fanout": [{"range": "0.81-1", "method": "tif;basic"}, {"range": "0.76-0.81", "method": "tif;slicing;dyn;2.31;0.59"}, {"range": "0-0.76", "method": "irhint;perf;13.64"}]
+	},
+	"HIGH": {
+		"slice": "temporal",
+		"fanout": [{"range": "0-0.64", "method": "irhint;perf;8"}, {"range": "0.64-1", "method": "tif;hint;mrg;dyn;3.15;0.52"}]
+	},
+	"SHORT": {
+		"slice": "temporal",
+		"fanout": [{"range": "0.84-1", "method": "tif;basic"}, {"range": "0-0.84", "method": "irhint;perf;8.22"}]
+	},
+	"LONG": {
+		"slice": "temporal",
+		"fanout": [{"range": "0-0.64", "method": "irhint;perf;6"}, {"range": "0.64-1", "method": "tif;hint;mrg;dyn;3.15;0.52"}]
+	},
+	"FEW": {
+		"slice": "temporal",
+		"fanout": [{"range": "0-0.64", "method": "irhint;perf;8"}, {"range": "0.64-1", "method": "tif;hint;mrg;dyn;3.15;0.52"}]
+	},
+	"MANY": {
+		"slice": "temporal",
+		"fanout": [{"range": "0-0.72", "method": "irhint;perf;10"}, {"range": "0.72-1", "method": "tif;basic"}]
+	},
+	"RND": {
+		"split": "temporal",
+		"fanout": [{"range": "0.88-1", "method": "tif;slicing;dyn;1.86;0.43"}, {"range": "0-1", "method": "irhint;perf;6"}]
+	},
+	"SELECTIVE+BROAD": {
+		"refine": "elemfreq",
+		"fanout": [{"range": "0.89-1", "method": "tif;basic"}, {"range": "0.77-0.89", "method": "tif;hint;mrg;dyn;1.72;3.15"}, {"range": "0-0.77", "method": "irhint;perf;15.28"}]
+	},
+	"SELECTIVEWIDE+BROADNARROW": {
+		"refine": "elemfreq",
+		"fanout": [{"range": "0.80-1", "method": "tif;basic"}, {"range": "0.72-0.80", "method": "tif;hint;mrg;dyn;2.38;2.32"}, {"range": "0-0.72", "method": "irhint;perf;14.67"}]
+	},
+	"HOT+COLD": {
+		"slice": "temporal",
+		"fanout": [{"range": "0.82-1", "method": "tif;hint;mrg;dyn;3.78;0.55"}, {"range": "0-0.82", "method": "irhint;perf;10.35"}]
+	}
+}

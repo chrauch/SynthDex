@@ -1,0 +1,57 @@
+{
+	"1": {
+		"method": "tif;basic"
+	},
+	"2": {
+		"method": "tif;slicing;static;50"
+	},
+	"3": {
+		"method": "tif;sharding;static;2"
+	},
+	"4": {
+		"method": "tif;hint;mrg;static;5"
+	},
+	"5": {
+		"method": "irhint;perf;13"
+	},
+	"BASE": {
+		"refine": "elemfreq",
+		"fanout": [{"range": "0.81-1", "method": "tif;basic"}, {"range": "0.74-0.81", "method": "tif;hint;mrg;dyn;3.02;3.30"}, {"range": "0-0.74", "method": "irhint;perf;14.98"}]
+	},
+	"LOW": {
+		"refine": "elemfreq",
+		"fanout": [{"range": "0.84-1", "method": "tif;basic"}, {"range": "0.73-0.84", "method": "tif;slicing;dyn;1.92;0.50"}, {"range": "0-0.73", "method": "irhint;perf;9"}]
+	},
+	"HIGH": {
+		"refine": "elemfreq",
+		"fanout": [{"range": "0.81-1", "method": "tif;basic"}, {"range": "0.76-0.81", "method": "tif;slicing;dyn;2.31;0.59"}, {"range": "0-0.76", "method": "irhint;perf;13.64"}]
+	},
+	"SHORT": {
+		"method": "irhint;perf;13"
+	},
+	"LONG": {
+		"method": "irhint;perf;11.32"
+	},
+	"FEW": {
+		"method": "irhint;perf;14"
+	},
+	"MANY": {
+		"refine": "elemfreq",
+		"fanout": [{"range": "0.87-1", "method": "tif;basic"}, {"range": "0.77-0.87", "method": "tif;slicing;dyn;2.00;0.75"}, {"range": "0-0.77", "method": "irhint;perf;14.27"}]
+	},
+	"RND": {
+		"method": "irhint;perf;11.32"
+	},
+	"SELECTIVE+BROAD": {
+		"refine": "elemfreq",
+		"fanout": [{"range": "0.81-1", "method": "tif;basic"}, {"range": "0.74-0.81", "method": "tif;hint;mrg;dyn;3.02;3.30"}, {"range": "0-0.74", "method": "irhint;perf;14.98"}]
+	},
+	"SELECTIVEWIDE+BROADNARROW": {
+		"refine": "elemfreq",
+		"fanout": [{"range": "0.83-1", "method": "tif;basic"}, {"range": "0.76-0.83", "method": "tif;slicing;dyn;2.08;0.66"}, {"range": "0-0.76", "method": "irhint;perf;15.62"}]
+	},
+	"HOT+COLD": {
+		"refine": "elemfreq",
+		"fanout": [{"range": "0.81-1", "method": "tif;basic"}, {"range": "0.74-0.81", "method": "tif;hint;mrg;dyn;3.02;3.30"}, {"range": "0-0.74", "method": "irhint;perf;14.98"}]
+	}
+}

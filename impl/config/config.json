@@ -195,8 +195,8 @@
             [
                 "BASE",
                 
-                "LOWFREQ",
-                "HIGHFREQ",
+                "LOW",
+                "HIGH",
 
                 "SHORT",
                 "LONG",
@@ -204,24 +204,13 @@
                 "FEW",
                 "MANY",
 
-                "RND1",
-                "RND2",
+                "RND",
 
-                "SELECTIVE",
-                "BROAD",
                 "SELECTIVE+BROAD",
 
-                "SELECTIVEWIDE",
-                "BROADNARROW",
                 "SELECTIVEWIDE+BROADNARROW",
 
-                "HOT",
-                "COLD",
-                "HOT+COLD",
-
-                "NORESULTS",
-                "FEWRESULTS",
-                "MANYRESULTS"
+                "HOT+COLD"
             ],
             "workload":
             {
@@ -239,7 +228,7 @@
                         "skew": [ "0-100" ]
                     }
                 },
-                "LOWFREQ":
+                "LOW":
                 {
                     "num": 200,
                     "elem":
@@ -253,7 +242,7 @@
                         "skew": [ "0-100" ]
                     }
                 },
-                "HIGHFREQ":
+                "HIGH":
                 {
                     "num": 200,
                     "elem":
@@ -323,7 +312,7 @@
                         "skew": [ "0-100" ]
                     }
                 },
-                "RND1":
+                "RND":
                 {
                     "num": 700,
                     "elem":

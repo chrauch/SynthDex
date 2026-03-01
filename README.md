@@ -25,13 +25,7 @@ Key components of the framework:
 
 
 ## Data
-The datasets and workloads used in the experiments can be sourced from [https://seafile.rlp.net/d/cf3ecc113a7c4c63baa7](https://seafile.rlp.net/d/cf3ecc113a7c4c63baa7).
-
-| Dataset   | Archive  | Uncompressed |
-| --------- | -------- | ------------ |
-| ECLOG     | 88.6 MB  | 241.1 MB     |
-| WIKIPEDIA | 291.7 MB | 6.3 GB       |
-
+The datasets and workloads used in the experiments can be sourced from [https://seafile.rlp.net/d/0b8cc26c4b6f4ade9574/](https://seafile.rlp.net/d/0b8cc26c4b6f4ade9574/).
 Put the unzipped files into directory ```exps/samples```. 
 
 
@@ -105,7 +99,7 @@ Controls the index configuration synthesis process.
 
 | Key | Default | Description |
 | --- | ------- | ----------- |
-| `variant` | `["grid"]` | Search strategy: `"grid"` (discrete parameter sweep) or `"grad"` (gradient-based continuous optimization, experimental, not included). |
+| `variant` | `["grid"]` | Search strategy: `"grid"` (discrete parameter sweep) or `"grad"` (gradient-based continuous optimization). |
 | `top-k` | `10` | Number of top candidate configurations to retain per synthesis round. |
 | `skyline` | `true` | Apply Pareto skyline filtering (throughput vs. size) to prune dominated candidates. |
 | `skyline-tolerance` | `0.005` | Relative tolerance when comparing candidates on the skyline. |
