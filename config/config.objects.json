@@ -1,0 +1,141 @@
+################################################################################
+# Project:  SynthDex
+# Purpose:  Adaptive Ensemble Indexing for Temporal Information Retrieval via Learned Cost Models
+# Author:   Christian Rauch
+################################################################################
+# Copyright (c) 2025 - 2026
+#
+# All rights reserved.
+#
+# Permission is hereby granted, free of charge, to any person obtaining a
+# copy of this software and associated documentation files (the "Software"),
+# to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense,
+# and/or sell copies of the Software, and to permit persons to whom the
+# Software is furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included
+# in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+# OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+# THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+# DEALINGS IN THE SOFTWARE.
+################################################################################
+    "o":
+    {
+        "reuse-ostats": false,
+        "num": 500,
+        "ext": 
+        {
+            "bins": 8,
+            "elem-dev-clamp": 0.1
+        },
+        "elem": 
+        {
+            "max-dict-ratio-per-o": 0.25,
+            "bins": 12
+        },
+        "gen":
+        {
+            "patterns-active":
+            [
+                "MIN",
+                "MAX"
+            ],
+            "vary-template-fields": 0.1,
+            "min-estimated-megabytes": 20,
+            "max-estimated-megabytes": 400,
+            "calculate-memory": false
+        },
+        "templates":
+        {
+            "MIN":
+            {
+                "O_name": "MIN",
+                "O_card_log": 5.4,
+                "O_domain_log": 7.1,
+                "O_ext-bin-0_max_len_log": 0.0,
+                "O_ext-bin-0_avg_elem_cnt_log": 0.0,
+                "O_ext-bin-0_dev_elem_cnt_log": -1.0,
+                "O_ext-bin-1_max_len_log": 0.0,
+                "O_ext-bin-1_avg_elem_cnt_log": 0.0,
+                "O_ext-bin-1_dev_elem_cnt_log": -1.0,
+                "O_ext-bin-2_max_len_log": 0.0,
+                "O_ext-bin-2_avg_elem_cnt_log": 0.0,
+                "O_ext-bin-2_dev_elem_cnt_log": -1.0,
+                "O_ext-bin-3_max_len_log": 1.0,
+                "O_ext-bin-3_avg_elem_cnt_log": 1.5,
+                "O_ext-bin-3_dev_elem_cnt_log": 1.5,
+                "O_ext-bin-4_max_len_log": 2.5,
+                "O_ext-bin-4_avg_elem_cnt_log": 1.8,
+                "O_ext-bin-4_dev_elem_cnt_log": 2.5,
+                "O_ext-bin-5_max_len_log": 6.2,
+                "O_ext-bin-5_avg_elem_cnt_log": 2.0,
+                "O_ext-bin-5_dev_elem_cnt_log": 2.6,
+                "O_ext-bin-6_max_len_log": 6.8,
+                "O_ext-bin-6_avg_elem_cnt_log": 2.0,
+                "O_ext-bin-6_dev_elem_cnt_log": 2.5,
+                "O_ext-bin-7_max_len_log": 7.1,
+                "O_ext-bin-7_avg_elem_cnt_log": 2.0,
+                "O_ext-bin-7_dev_elem_cnt_log": 2.4,
+                "O_elem-bin-0_hi_rank_log": 0.3,
+                "O_elem-bin-1_hi_rank_log": 0.6,
+                "O_elem-bin-2_hi_rank_log": 1.4,
+                "O_elem-bin-3_hi_rank_log": 1.7,
+                "O_elem-bin-4_hi_rank_log": 2.1,
+                "O_elem-bin-5_hi_rank_log": 2.8,
+                "O_elem-bin-6_hi_rank_log": 3.1,
+                "O_elem-bin-7_hi_rank_log": 3.5,
+                "O_elem-bin-8_hi_rank_log": 3.8,
+                "O_elem-bin-9_hi_rank_log": 4.6,
+                "O_elem-bin-10_hi_rank_log": 4.8,
+                "O_elem-bin-11_hi_rank_log": 5.3
+            },
+            "MAX": 
+            {
+                "O_name": "MAX",
+                "O_card_log": 6.3,
+                "O_domain_log": 8.2,
+                "O_ext-bin-0_max_len_log": 1.7,
+                "O_ext-bin-0_avg_elem_cnt_log": 2.6,
+                "O_ext-bin-0_dev_elem_cnt_log": 2.7,
+                "O_ext-bin-1_max_len_log": 2.9,
+                "O_ext-bin-1_avg_elem_cnt_log": 2.7,
+                "O_ext-bin-1_dev_elem_cnt_log": 2.7,
+                "O_ext-bin-2_max_len_log": 4.3,
+                "O_ext-bin-2_avg_elem_cnt_log": 2.7,
+                "O_ext-bin-2_dev_elem_cnt_log": 2.8,
+                "O_ext-bin-3_max_len_log": 5.9,
+                "O_ext-bin-3_avg_elem_cnt_log": 2.7,
+                "O_ext-bin-3_dev_elem_cnt_log": 2.8,
+                "O_ext-bin-4_max_len_log": 6.6,
+                "O_ext-bin-4_avg_elem_cnt_log": 2.7,
+                "O_ext-bin-4_dev_elem_cnt_log": 2.7,
+                "O_ext-bin-5_max_len_log": 7.1,
+                "O_ext-bin-5_avg_elem_cnt_log": 2.5,
+                "O_ext-bin-5_dev_elem_cnt_log": 3.1,
+                "O_ext-bin-6_max_len_log": 7.4,
+                "O_ext-bin-6_avg_elem_cnt_log": 2.4,
+                "O_ext-bin-6_dev_elem_cnt_log": 2.8,
+                "O_ext-bin-7_max_len_log": 8.2,
+                "O_ext-bin-7_avg_elem_cnt_log": 2.3,
+                "O_ext-bin-7_dev_elem_cnt_log": 3.0,
+                "O_elem-bin-0_hi_rank_log": 0.4,
+                "O_elem-bin-1_hi_rank_log": 0.8,
+                "O_elem-bin-2_hi_rank_log": 1.6,
+                "O_elem-bin-3_hi_rank_log": 2.0,
+                "O_elem-bin-4_hi_rank_log": 2.4,
+                "O_elem-bin-5_hi_rank_log": 3.2,
+                "O_elem-bin-6_hi_rank_log": 3.6,
+                "O_elem-bin-7_hi_rank_log": 4.0,
+                "O_elem-bin-8_hi_rank_log": 4.4,
+                "O_elem-bin-9_hi_rank_log": 5.2,
+                "O_elem-bin-10_hi_rank_log": 5.6,
+                "O_elem-bin-11_hi_rank_log": 6.0
+            }
+        }
+    },

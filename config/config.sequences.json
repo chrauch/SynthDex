@@ -1,0 +1,233 @@
+################################################################################
+# Project:  SynthDex
+# Purpose:  Adaptive Ensemble Indexing for Temporal Information Retrieval via Learned Cost Models
+# Author:   Christian Rauch
+################################################################################
+# Copyright (c) 2025 - 2026
+#
+# All rights reserved.
+#
+# Permission is hereby granted, free of charge, to any person obtaining a
+# copy of this software and associated documentation files (the "Software"),
+# to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense,
+# and/or sell copies of the Software, and to permit persons to whom the
+# Software is furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included
+# in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+# OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+# THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+# DEALINGS IN THE SOFTWARE.
+################################################################################
+    "sequences":
+    {
+        "flows":
+        {
+            "explore":
+            {
+                "repeat": -1,
+                "steps":
+                [
+                    "./nis convert",
+                    "./nis clean train-parquet",
+                    "./nis query                 --stage qdefaults,qsmall",
+                    "./nis query                 --stage qdefaults,qmedium",
+                    "./nis learn                 --stage train",
+                ]
+            },
+
+            "dict2-explore-accuracy":
+            {
+                "repeat": 1,
+                "steps":
+                [
+                    "./nis sequence dict2-explore",
+                    "./nis sequence dict2-accuracy",
+                ]
+            },
+
+            "incremental-accuracy":
+            {
+                "repeat": 9,
+                "steps":
+                [
+                    "bash -c 'S=../output/train/training-backup; T=../output/train/training; V=../output/train/validation; mkdir -p $T $V; ls $S | sort | head -45 | while IFS= read -r f; do mv $S/$f $T/$f; done; ls $S | sort | head -5 | while IFS= read -r f; do mv $S/$f $V/$f; done; echo training/ $(ls $T | wc -l) validation/ $(ls $V | wc -l) backup/ $(ls $S | wc -l)'",
+                    "./nis learn                  --stage train",
+                    "./nis accuracy              --stage parquet-test"
+                ]
+            },
+
+            "dict2-explore":
+            {
+                "repeat": 8,
+                "steps":
+                [
+                    "./nis query '?:dict2'       --stage dict2",
+                    "./nis convert",
+                    "./nis learn                 --stage train",
+                ]
+            },
+
+            "dict2-accuracy":
+            {
+                "repeat": 19,
+                "steps":
+                [
+                    "./nis accuracy '?:dict2'     --stage dict2",
+                    "./nis convert",
+                    "./nis learn                  --stage train",
+                ]
+            }
+        },
+        "stages":
+        {
+            "qdefaults":
+            {
+                "config":
+                {
+                    "o":
+                    {
+                        "num": 25,
+                        "gen":
+                        {
+                            "min-estimated-megabytes": 10
+                        }
+                    },
+                    "i":
+                    {
+                        "gen":
+                        {
+                            "exploration-per-O":
+                            {
+                                "pure_irhint": 0,
+                                "pure_tif+hint": 0,
+                                "pure_tif+sharding": 0,
+                                "pure_tif+slicing": 0,
+                                "refine-elemfreq_tif+basic_tif+hint_irhint": 15,
+                                "refine-elemfreq_tif+basic_tif+slicing_irhint": 0,
+                                "slice-temporal_irhint_tif+basic": 0,
+                                "slice-temporal_irhint_tif+hint": 0,
+                                "slice-temporal_irhint_tif+slicing": 0,
+                                "slice-temporal_tif+basic_irhint": 0,
+                                "slice-temporal_tif+hint_irhint": 0,
+                                "slice-temporal_tif+slicing_irhint": 0
+                            },
+                        }
+                    },
+                    "q":
+                    {
+                        "gen":
+                        {
+                            "num": 4000,
+                            "patterns-active":
+                            [
+                                "RND"
+                            ],
+                        }
+                    }
+                }
+            },
+            "dict2":
+            {
+                "config":
+                {
+                    "o":
+                    {
+                        "num": 50
+                    },
+                    "i":
+                    {
+                        "gen":
+                        {
+                            "exploration-per-O":
+                            {
+                                "refine-elemfreq_tif+slicing_irhint": 10
+                            }
+                        }
+                    },
+                    "accuracy":
+                    {
+                        "num-object-collections": 50,
+                        "num-indices-per-OQ": 10
+                    }
+                }
+            },
+            "qsmall":
+            {
+                "config":
+                {
+                    "o":
+                    {
+                        "num": 30,
+                        "gen":
+                        {
+                            "max-estimated-megabytes": 100
+                        }
+                    },
+                    "q":
+                    {
+                        "gen":
+                        {
+                            "num": 2000
+                        }
+                    }
+                }
+            },
+            "qmedium":
+            {
+                "config":
+                {
+                    "o":
+                    {
+                        "num": 4,
+                        "gen":
+                        {
+                            "max-estimated-megabytes": 100,
+                            "max-estimated-megabytes": 500
+                        }
+                    }
+                }
+            },
+            "qlarge":
+            {
+                "config":
+                {
+                    "o":
+                    {
+                        "num": 1,
+                        "gen":
+                        {
+                            "max-estimated-megabytes": 500,
+                            "max-estimated-megabytes": 1000
+                        }
+                    }
+                }
+            },
+            "parquet-test":
+            {
+                "config":
+                {
+                    "accuracy":
+                    {
+                        "from-parquet": true
+                    }
+                }
+            },
+            "train":
+            {
+                "config":
+                {
+                    "learning":
+                    {
+                        "stopping-threshold": [0.002]
+                    }
+                }
+            }
+        }
+    }

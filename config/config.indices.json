@@ -1,0 +1,273 @@
+################################################################################
+# Project:  SynthDex
+# Purpose:  Adaptive Ensemble Indexing for Temporal Information Retrieval via Learned Cost Models
+# Author:   Christian Rauch
+################################################################################
+# Copyright (c) 2025 - 2026
+#
+# All rights reserved.
+#
+# Permission is hereby granted, free of charge, to any person obtaining a
+# copy of this software and associated documentation files (the "Software"),
+# to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense,
+# and/or sell copies of the Software, and to permit persons to whom the
+# Software is furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included
+# in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+# OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+# THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+# DEALINGS IN THE SOFTWARE.
+################################################################################
+    "i":
+    {
+        "encoding-length": 8,
+        "gen":
+        {
+            "exploration-per-O":
+            {
+#                "pure_irhint": 4,
+#                "pure_tif+slicing": 4,
+
+                "refine-elemfreq_tif+slicingb_irhintb": 10,
+            },
+            "design-space":
+            {
+                "pure":
+                {
+                    "pure_tif+slicing":  { "method":"tif;slicing;a;dyn;[1.8-2.6];[0.3-0.9]" },
+                    "pure_tif+hint":     { "method":"tif;hint;mrg;dyn;[1.3-4.0];[0.5-4.0]" },
+                    "pure_irhint":       { "method":"irhint;a;[5-16]" }
+                },
+
+                "dict2":
+                {
+                    "refine-elemfreq_tif+slicingb_irhintb":
+                    {
+                        "refine":"elemfreq",
+                        "fanout":
+                        [
+                            {"range":"[0.6-0.85]-1","method":"tif;slicing;b;dyn;[1.8-2.5];[0.3-0.9]"},
+                            {"range":"0-p","method":"irhint;b;[4-14]"}
+#                            {"range":"0-p","method":"irhint;b;[4-11]"}
+                        ]
+                    }
+                },
+
+                "temp+dict2":
+                {
+                    "temporal-bands_refine-elemfreq_tif+basic_tif+slicingb_irhintb":
+                    {
+                        "bands": "[1-4]",
+                        "refine":"elemfreq",
+                        "fanout":
+                        [
+                            {"range":"[0.5-0.9]-1","method":"tif;slicing;b;dyn;[1.8-2.6];[0.3-0.9]"},
+                            {"range":"0-p","method":"irhint;b;[4-12]"}
+                        ]
+                    }
+                },
+
+                # Static alternative: fixed outer bands with independent
+                # inner synthesis for each range.
+                "temp_static_50_50+dict2":
+                {
+                    "temporal-ranges_refine-elemfreq_tif+basic_tif+slicingb_irhintb":
+                    {
+                        "ranges": ["0-0.5", "0.5-1"],
+                        "refine":"elemfreq",
+                        "fanout":
+                        [
+                            {"range":"[0.5-0.9]-1","method":"tif;slicing;b;dyn;[1.8-2.6];[0.3-0.9]"},
+                            {"range":"0-p","method":"irhint;b;[4-12]"}
+                        ]
+                    },
+                },
+
+                "obsolete":
+                {
+                    "pure_tif+basic":    { "method":"tif;basic" },
+
+                    "pure_tif+sharding": { "method":"tif;sharding;dyn;[1.8-2.8];[0.3-1.6]" },
+
+                    "refine-elemfreq_tif+basic_tif+hint_irhint":
+                    {
+                        "refine":"elemfreq",
+                        "fanout":
+                        [
+                            {"range":"[0.8-0.95]-1","method":"tif;basic"},
+                            {"range":"[0.65-0.78]-p","method":"tif;hint;mrg;dyn;[1.3-4.0];[0.5-4.0]"},
+                            {"range":"0-p","method":"irhint;a;[7-15]"}
+                        ]
+                    },
+
+                    "refine-elemfreq_tif+basic_tif+slicing_irhint":
+                    {
+                        "refine":"elemfreq",
+                        "fanout":
+                        [
+                            {"range":"[0.8-0.95]-1","method":"tif;basic"},
+                            {"range":"[0.65-0.78]-p","method":"tif;slicing;a;dyn;[1.8-2.6];[0.3-0.9]"},
+                            {"range":"0-p","method":"irhint;a;[7-15]"}
+                        ]
+                    },
+                    "refine-elemfreq_tif+hint_irhint":
+                    {
+                        "refine":"elemfreq",
+                        "fanout":
+                        [
+                            {"range":"[0.65-0.95]-1","method":"tif;hint;mrg;dyn;[1.3-4.0];[0.5-4.0]"},
+                            {"range":"0-p","method":"irhint;a;[5-15]"}
+                        ]
+                    },
+
+                    "split-temporal_irhint_irhint_irhint":
+                    {
+                        "split":"temporal",
+                        "fanout":
+                        [
+                            {"range":"[0.75-0.95]-1","method":"irhint;a;[2-8]"},
+                            {"range":"0-p","method":"irhint;a;[2-8]"},
+                            {"range":"0-1","method":"irhint;a;[2-5]"}
+                        ]
+                    },
+                    "split-temporal_tif+hint_irhint_irhint":
+                    {
+                        "split":"temporal",
+                        "fanout":
+                        [
+                            {"range":"[0.75-0.95]-1","method":"tif;hint;mrg;dyn;[1.3-4.0];[0.5-4.0]"},
+                            {"range":"0-p","method":"irhint;a;[4-9]"},
+                            {"range":"0-1","method":"irhint;a;[2-5]"}
+                        ]
+                    },
+                    "split-temporal_tif+slicing_irhint_irhint":
+                    {
+                        "split":"temporal",
+                        "fanout":
+                        [
+                            {"range":"[0.75-0.95]-1","method":"tif;slicing;a;dyn;[1.8-2.6];[0.3-0.9]"},
+                            {"range":"0-p","method":"irhint;a;[4-9]"},
+                            {"range":"0-1","method":"irhint;a;[2-5]"}
+                        ]
+                    },
+                    "split-temporal_tif+basic_irhint_irhint":
+                    {
+                        "split":"temporal",
+                        "fanout":
+                        [
+                            {"range":"[0.75-0.95]-1","method":"tif;basic"},
+                            {"range":"0-p","method":"irhint;a;[5-10]"},
+                            {"range":"0-1","method":"irhint;a;[2-7]"}
+                        ]
+                    },
+                    "split-temporal_tif+basic_irhint_tif+slicing":
+                    {
+                        "split":"temporal",
+                        "fanout":
+                        [
+                            {"range":"[0.75-0.95]-1","method":"tif;basic"},
+                            {"range":"0-p","method":"irhint;a;[5-10]"},
+                            {"range":"0-1","method":"tif;slicing;a;dyn;[1.8-2.6];[0.3-0.9]"}
+                        ]
+                    },
+                    "split-temporal_tif+basic_irhint":
+                    {
+                        "split": "temporal",
+                        "fanout":
+                        [
+                            {"range":"[0.75-0.95]-1","method":"tif;basic"},
+                            {"range":"0-1","method": "irhint;a;[4-12]"}
+                        ]
+                    },
+                    "split-temporal_tif+slicing_irhint":
+                    {
+                        "split":"temporal",
+                        "fanout":
+                        [
+                            {"range":"[0.75-0.95]-1","method":"tif;slicing;a;dyn;[1.8-2.6];[0.3-0.9]"},
+                            {"range":"0-1","method":"irhint;a;[4-13]"}
+                        ]
+                    },
+                    "split-temporal_tif+hint_irhint":
+                    {
+                        "split":"temporal",
+                        "fanout":
+                        [
+                            {"range":"[0.75-0.95]-1","method":"tif;hint;mrg;dyn;[1.3-4.0];[0.5-4.0]"},
+                            {"range":"0-1","method":"irhint;a;[4-12]"}
+                        ]
+                    },
+                    "split-temporal_irhint_irhint":
+                    {
+                        "split":"temporal",
+                        "fanout":
+                        [
+                            {"range":"[0.75-0.95]-1","method":"irhint;a;[4-12]"},
+                            {"range":"0-1","method":"irhint;a;[4-12]"}
+                        ]
+                    },
+                    "slice-temporal_tif+basic_irhint":
+                    {
+                        "slice":"temporal",
+                        "fanout":
+                        [
+                            {"range":"[0.75-0.95]-1","method":"tif;basic"},
+                            {"range":"0-p","method":"irhint;a;[4-14]"}
+                        ]
+                    },
+                    "slice-temporal_tif+slicing_irhint":
+                    {
+                        "slice":"temporal",
+                        "fanout":
+                        [
+                            {"range":"[0.75-0.95]-1","method":"tif;slicing;a;dyn;[1.8-2.6];[0.3-0.9]"},
+                            {"range":"0-p","method":"irhint;a;[4-14]"}
+                        ]
+                    },
+                    "slice-temporal_tif+hint_irhint":
+                    {
+                        "slice":"temporal",
+                        "fanout":
+                        [
+                            {"range":"[0.75-0.95]-1","method":"tif;hint;mrg;dyn;[1.3-4.0];[0.5-4.0]"},
+                            {"range":"0-p","method":"irhint;a;[4-14]"}
+                        ]
+                    },
+                    "slice-temporal_irhint_tif+basic":
+                    {
+                        "slice":"temporal",
+                        "fanout":
+                        [
+                            {"range":"[0.75-0.95]-1","method":"irhint;a;[4-14]"},
+                            {"range":"0-p","method":"tif;basic"}
+                        ]
+                    },
+                    "slice-temporal_irhint_tif+slicing":
+                    {
+                        "slice":"temporal",
+                        "fanout":
+                        [
+                            {"range":"[0.75-0.95]-1","method":"irhint;a;[4-14]"},
+                            {"range":"0-p","method":"tif;slicing;a;dyn;[1.8-2.6];[0.3-0.9]"}
+                        ]
+                    },
+                    "slice-temporal_irhint_tif+hint":
+                    {
+                        "slice":"temporal",
+                        "fanout":
+                        [
+                            {"range":"[0.75-0.95]-1","method":"irhint;a;[4-13]"},
+                            {"range":"0-p","method":"tif;hint;mrg;dyn;[1.3-4.0];[0.5-4.0]"}
+                        ]
+                    }
+                }
+            }
+        }
+    },

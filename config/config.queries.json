@@ -1,0 +1,705 @@
+################################################################################
+# Project:  SynthDex
+# Purpose:  Adaptive Ensemble Indexing for Temporal Information Retrieval via Learned Cost Models
+# Author:   Christian Rauch
+################################################################################
+# Copyright (c) 2025 - 2026
+#
+# All rights reserved.
+#
+# Permission is hereby granted, free of charge, to any person obtaining a
+# copy of this software and associated documentation files (the "Software"),
+# to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense,
+# and/or sell copies of the Software, and to permit persons to whom the
+# Software is furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included
+# in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+# OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+# THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+# DEALINGS IN THE SOFTWARE.
+################################################################################
+    "q":
+    {
+        "runs": 10,
+        "elem":
+        {
+            "max-cnt": 9
+        },
+        "gen":
+        {
+            "combine-all-workloads": true,
+            "shuffle-workloads": true,
+            "num": 10000,
+            "expand":
+            {
+                "seed": -1,
+#                "seed": 8,
+                "mutation-rate-pct": 10
+            },
+            "max-gen-tries": 15000,
+            "patterns-active":
+            [
+#                "BASE",
+
+#                "LOW",
+#                "HIGH",
+
+#                "SHORT",
+#                "LONG",
+
+#                "FEW",
+#                "MANY",
+
+                "RND"
+            ],
+            "workload":
+            {
+                "BASE":
+                {
+                    "ratio": 100,
+                    "elem":
+                    {
+                        "cnt": [3],
+                        "freqs": [ "0-100" ]
+                    },
+                    "ext":
+                    {
+                        "ranges": [ "0.1" ],
+                        "skew": [ "0-100" ]
+                    }
+                },
+                "LOW":
+                {
+                    "ratio": 200,
+                    "elem":
+                    {
+                        "cnt": [3],
+                        "freqs": [ "0-0.1", "0-0.01", "0-0.001" ]
+                    },
+                    "ext":
+                    {
+                        "ranges": [ "0.1" ],
+                        "skew": [ "0-100" ]
+                    }
+                },
+                "HIGH":
+                {
+                    "ratio": 200,
+                    "elem":
+                    {
+                        "cnt": [3],
+                        "freqs": [ "10-100", "1-10", "0.1-1" ]
+                    },
+                    "ext":
+                    {
+                        "ranges": [ "0.1" ],
+                        "skew": [ "0-100" ]
+                    }
+                },
+                "SHORT":
+                {
+                    "ratio": 100,
+                    "elem":
+                    {
+                        "cnt": [3],
+                        "freqs": [ "0-100" ]
+                    },
+                    "ext":
+                    {
+                        "ranges": [ "0-0.1" ],
+                        "skew": [ "0-100" ]
+                    }
+                },
+                "LONG":
+                {
+                    "ratio": 100,
+                    "elem":
+                    {
+                        "cnt": [3],
+                        "freqs": [ "0-100" ]
+                    },
+                    "ext":
+                    {
+                        "ranges": [ "0.1-10" ],
+                        "skew": [ "0-100" ]
+                    }
+                },
+                "FEW":
+                {
+                    "ratio": 100,
+                    "elem":
+                    {
+                        "cnt": [1, 2],
+                        "freqs": [ "0-100" ]
+                    },
+                    "ext":
+                    {
+                        "ranges": [ "0.1" ],
+                        "skew": [ "0-100" ]
+                    }
+                },
+                "MANY":
+                {
+                    "ratio": 100,
+                    "elem":
+                    {
+                        "cnt": [4, 5, 6, 7, 8, 9],
+                        "freqs": [ "0-100" ]
+                    },
+                    "ext":
+                    {
+                        "ranges": [ "0.1" ],
+                        "skew": [ "0-100" ]
+                    }
+                },
+                "RND":
+                {
+                    "ratio": 700,
+                    "elem":
+                    {
+                        "cnt": [1, 2, 3, 4, 5, 6, 7, 8, 9],
+                        "freqs":
+                        [
+                            "0-100",
+                            "0-0.0001",
+                            "0.0001-0.001",
+                            "0.001-0.01",
+                            "0.01-0.1",
+                            "0.1-1",
+                            "1-10",
+                            "10-100"
+                        ]
+                    },
+                    "ext":
+                    {
+                        "ranges":
+                        [
+                            "0-0.001",
+                            "0.001-0.01",
+                            "0.01-0.1",
+                            "0.1-1",
+                            "1-10",
+                            "10-100"
+                        ],
+                        "skew": [ "0-100" ]
+                    }
+                },
+                "RND2":
+                {
+                    "ratio": 200,
+                    "elem":
+                    {
+                        "cnt": [1, 2, 3, 4, 5, 6, 7, 8, 9],
+                        "freqs": [ "0-100" ]
+                    },
+                    "ext":
+                    {
+                        "ranges": [ "0-100"],
+                        "skew": [ "0-100" ]
+                    }
+                },
+                "NORESULTS":
+                {
+                    "ratio": 30,
+                    "select": "0-0",
+                    "elem":
+                    {
+                        "cnt": [1, 2, 3, 4, 5, 6, 7, 8, 9],
+                        "freqs":
+                        [
+                            "0-100",
+                            "0-0.0001",
+                            "0.0001-0.001",
+                            "0.001-0.01",
+                            "0.01-0.1",
+                            "0.1-1",
+                            "1-10",
+                            "10-100"
+                        ]
+                    },
+                    "ext":
+                    {
+                        "ranges":
+                        [
+                            "0-0.001",
+                            "0.001-0.01",
+                            "0.01-0.1",
+                            "0.1-1",
+                            "1-10",
+                            "10-100"
+                        ],
+                        "skew": [ "0-100" ]
+                    }
+                },
+                "FEWRESULTS":
+                {
+                    "ratio": 10,
+                    "select": "0-0.001",
+                    "elem":
+                    {
+                        "cnt": [1, 2, 3, 4, 5, 6, 7, 8, 9],
+                        "freqs":
+                        [
+                            "0-100",
+                            "0-0.0001",
+                            "0.0001-0.001",
+                            "0.001-0.01",
+                            "0.01-0.1",
+                            "0.1-1",
+                            "1-10",
+                            "10-100"
+                        ]
+                    },
+                    "ext":
+                    {
+                        "ranges":
+                        [
+                            "0-0.001",
+                            "0.001-0.01",
+                            "0.01-0.1",
+                            "0.1-1",
+                            "1-10",
+                            "10-100"
+                        ],
+                        "skew": [ "0-100" ]
+                    }
+                },
+                "MANYRESULTS":
+                {
+                    "ratio": 10,
+                    "select": "5-100",
+                    "elem":
+                    {
+                        "cnt": [1, 2, 3, 4, 5, 6, 7, 8, 9],
+                        "freqs":
+                        [
+                            "0-100",
+                            "0-0.0001",
+                            "0.0001-0.001",
+                            "0.001-0.01",
+                            "0.01-0.1",
+                            "0.1-1",
+                            "1-10",
+                            "10-100"
+                        ]
+                    },
+                    "ext":
+                    {
+                        "ranges":
+                        [
+                            "0-0.001",
+                            "0.001-0.01",
+                            "0.01-0.1",
+                            "0.1-1",
+                            "1-10",
+                            "10-100"
+                        ],
+                        "skew": [ "0-100" ]
+                    }
+                },
+                "SELECTIVEWIDE":
+                {
+                    "ratio": 100,
+                    "elem":
+                    {
+                        "cnt": [3],
+                        "freqs": [ "0-0.01", "0-0.001" ]
+                    },
+                    "ext":
+                    {
+                        "ranges": [ "1-10" ],
+                        "skew": [ "0-100" ]
+                    }
+                },
+                "BROADNARROW":
+                {
+                    "ratio": 3,
+                    "elem":
+                    {
+                        "cnt": [1,2],
+                        "freqs": [ "1-100" ]
+                    },
+                    "ext":
+                    {
+                        "ranges": [ "0-0.01", "0-0.001" ],
+                        "skew": [ "0-100" ]
+                    }
+                },
+                "HOTA":
+                {
+                    "ratio": 100,
+                    "elem":
+                    {
+                        "cnt": [3],
+                        "freqs": [ "0-0.01" ]
+                    },
+                    "ext":
+                    {
+                        "ranges": [ "5-10" ],
+                        "skew": [ "90-100" ]
+                    }
+                },
+                "COLDA":
+                {
+                    "ratio": 3,
+                    "elem":
+                    {
+                        "cnt": [3],
+                        "freqs": [ "1-100" ]
+                    },
+                    "ext":
+                    {
+                        "ranges": [ "0-0.01" ],
+                        "skew": [ "0-80" ]
+                    }
+                },
+                "SELECTIVE":
+                {
+                    "ratio": 200,
+                    "elem":
+                    {
+                        "cnt": [1],
+                        "freqs": [ "0-0.1" ]
+                    },
+                    "ext":
+                    {
+                        "ranges": [ "0.1-100" ],
+                        "skew": [ "0-100" ]
+                    }
+                },
+                "BROAD":
+                {
+                    "ratio": 100,
+                    "elem":
+                    {
+                        "cnt": [1,2,3],
+                        "freqs": [ "0-100" ]
+                    },
+                    "ext":
+                    {
+                        "ranges": [ "0-0.1" ],
+                        "skew": [ "0-100" ]
+                    }
+                },
+                "H1":
+                {
+                    "ratio": 200,
+                    "elem":
+                    {
+                        "cnt": [1,2,3],
+                        "freqs": [ "0-0.01" ]
+                    },
+                    "ext":
+                    {
+                        "ranges": [ "5-10" ],
+                        "skew": [ "90-100" ]
+                    }
+                },
+                "H2":
+                {
+                    "ratio": 100,
+                    "elem":
+                    {
+                        "cnt": [3],
+                        "freqs": [ "0-10" ]
+                    },
+                    "ext":
+                    {
+                        "ranges": [ "0.1-5" ],
+                        "skew": [ "40-70" ]
+                    }
+                },
+                "H3":
+                {
+                    "ratio": 100,
+                    "elem":
+                    {
+                        "cnt": [2,3],
+                        "freqs": [ "0-100" ]
+                    },
+                    "ext":
+                    {
+                        "ranges": [ "0.01" ],
+                        "skew": [ "0-40" ]
+                    }
+                },
+
+                # Workloads where temp+dict2 significantly outperforms dict2
+                "HOTB":
+                {
+                    "ratio": 100,
+                    "elem":
+                    {
+                        "cnt": [3],
+                        "freqs": [ "0-0.01" ]
+                    },
+                    "ext":
+                    {
+                        "ranges": [ "0.1-1", "1-10", "10-100" ],
+                        "skew": [ "90-100" ]
+                    }
+                },
+
+                # 4-band hot zone
+                "HOTB4":
+                {
+                    "ratio": 100,
+                    "elem":
+                    {
+                        "cnt": [3],
+                        "freqs": [ "0-0.01" ]
+                    },
+                    "ext":
+                    {
+                        "ranges": [ "0.001-0.01", "0.1-1", "1-10", "10-100" ],
+                        "skew": [ "90-100" ]
+                    }
+                },
+
+                "COLDB":
+                {
+                    "ratio": 100,
+                    "elem":
+                    {
+                        "cnt": [3],
+                        "freqs": [ "1-100" ]
+                    },
+                    "ext":
+                    {
+                        "ranges": [ "0-0.001", "0.001-0.01", "0.01-0.1" ],
+                        "skew": [ "0-80" ]
+                    }
+                },
+
+                # Mid zone for 3-partition (1HOTB+1MIDA+1COLDB).
+                # Covers the frequency and range gap between HOTB and COLDB with free skew.
+                "MIDA":
+                {
+                    "ratio": 100,
+                    "elem":
+                    {
+                        "cnt": [3],
+                        "freqs": [ "0.01-0.1", "0.1-1" ]
+                    },
+                    "ext":
+                    {
+                        "ranges": [ "0.001-0.01", "0.01-0.1", "0.1-1" ],
+                        "skew": [ "0-100" ]
+                    }
+                },
+
+                # Upper mid zone (near-hot) for 4-partition (1HOTB+1MIDHA+1MIDLA+1COLDB).
+                # Moderate-rare elements, medium-long ranges, leans toward recent skew.
+                "MIDHA":
+                {
+                    "ratio": 100,
+                    "elem":
+                    {
+                        "cnt": [3],
+                        "freqs": [ "0.001-0.1" ]
+                    },
+                    "ext":
+                    {
+                        "ranges": [ "0.1-1", "1-10" ],
+                        "skew": [ "50-100" ]
+                    }
+                },
+
+                # Lower mid zone (near-cold) for 4-partition.
+                # Moderate-common elements, medium-short ranges, leans toward historical skew.
+                "MIDLA":
+                {
+                    "ratio": 100,
+                    "elem":
+                    {
+                        "cnt": [3],
+                        "freqs": [ "0.01-10" ]
+                    },
+                    "ext":
+                    {
+                        "ranges": [ "0.001-0.01", "0.01-0.1" ],
+                        "skew": [ "0-60" ]
+                    }
+                },
+
+                # IR/T workloads
+                "IRpTm":
+                {
+                    "ratio": 1,
+                    "elem":
+                    {
+                        "cnt": [3,4,5],
+                        "freqs": [ "0-0.1" ],
+                    },
+                    "ext":
+                    {
+                        "ranges": [ "0.1-1", "1-10" ],
+                        "skew": [ "0-100" ]
+                    }
+                },
+                "IRpTp":
+                {
+                    "ratio": 1,
+                    "elem":
+                    {
+                        "cnt": [3,4,5],
+                        "freqs": [ "0-0.1" ],
+                    },
+                    "ext":
+                    {
+                        "ranges": [ "0-0.1", "0-0.01", "0-0.001" ],
+                        "skew": [ "0-100" ]
+                    }
+                },
+                "IRmTp":
+                {
+                    "ratio": 1,
+                    "elem":
+                    {
+                        "cnt": [1,2,3],
+                        "freqs": [ "0.1-1", "1-10", "10-100" ],
+                    },
+                    "ext":
+                    {
+                        "ranges": [ "0-0.1", "0-0.01", "0-0.001" ],
+                        "skew": [ "0-100" ]
+                    }
+                },
+                "IRmTm":
+                {
+                    "ratio": 1,
+                    "elem":
+                    {
+                        "cnt": [1,2,3],
+                        "freqs": [ "0.1-1", "1-10", "10-100" ],
+                    },
+                    "ext":
+                    {
+                        "ranges": [ "0.1-1", "1-10" ],
+                        "skew": [ "0-100" ]
+                    }
+                },
+
+                # D/S/E workloads
+                "DpSmEp":
+                {
+                    "ratio": 100,
+                    "elem":
+                    {
+                        "cnt": [4, 5, 6, 7, 8, 9],
+                        "freqs": [ "10-100", "1-10", "0.1-1" ]
+                    },
+                    "ext":
+                    {
+                        "ranges": [ "0-0.1" ],
+                        "skew": [ "0-100" ]
+                    }
+                },
+                "DpSmEm":
+                {
+                    "ratio": 100,
+                    "elem":
+                    {
+                        "cnt": [4, 5, 6, 7, 8, 9],
+                        "freqs": [ "10-100", "1-10", "0.1-1" ]
+                    },
+                    "ext":
+                    {
+                        "ranges": [ "0.1-10" ],
+                        "skew": [ "0-100" ]
+                    }
+                },
+                "DpSpEp":
+                {
+                    "ratio": 100,
+                    "elem":
+                    {
+                        "cnt": [4, 5, 6, 7, 8, 9],
+                        "freqs": [ "0-0.1", "0-0.01", "0-0.001" ]
+                    },
+                    "ext":
+                    {
+                        "ranges": [ "0-0.1" ],
+                        "skew": [ "0-100" ]
+                    }
+                },
+                "DpSpEm":
+                {
+                    "ratio": 100,
+                    "elem":
+                    {
+                        "cnt": [4, 5, 6, 7, 8, 9],
+                        "freqs": [ "0-0.1", "0-0.01", "0-0.001" ]
+                    },
+                    "ext":
+                    {
+                        "ranges": [ "0.1-10" ],
+                        "skew": [ "0-100" ]
+                    }
+                },
+                "DmSmEp":
+                {
+                    "ratio": 100,
+                    "elem":
+                    {
+                        "cnt": [1, 2],
+                        "freqs": [ "10-100", "1-10", "0.1-1" ]
+                    },
+                    "ext":
+                    {
+                        "ranges": [ "0-0.1" ],
+                        "skew": [ "0-100" ]
+                    }
+                },
+                "DmSmEm":
+                {
+                    "ratio": 100,
+                    "elem":
+                    {
+                        "cnt": [1, 2],
+                        "freqs": [ "10-100", "1-10", "0.1-1" ]
+                    },
+                    "ext":
+                    {
+                        "ranges": [ "0.1-10" ],
+                        "skew": [ "0-100" ]
+                    }
+                },
+                "DmSpEp":
+                {
+                    "ratio": 100,
+                    "elem":
+                    {
+                        "cnt": [1, 2],
+                        "freqs": [ "0-0.1", "0-0.01", "0-0.001" ]
+                    },
+                    "ext":
+                    {
+                        "ranges": [ "0-0.1" ],
+                        "skew": [ "0-100" ]
+                    }
+                },
+                "DmSpEm":
+                {
+                    "ratio": 100,
+                    "elem":
+                    {
+                        "cnt": [1, 2],
+                        "freqs": [ "0-0.1", "0-0.01", "0-0.001" ]
+                    },
+                    "ext":
+                    {
+                        "ranges": [ "0.1-10" ],
+                        "skew": [ "0-100" ]
+                    }
+                }
+            }
+        }
+    },

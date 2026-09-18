@@ -1,0 +1,252 @@
+################################################################################
+# Project:  SynthDex
+# Purpose:  Adaptive Ensemble Indexing for Temporal Information Retrieval via Learned Cost Models
+# Author:   Christian Rauch
+################################################################################
+# Copyright (c) 2025 - 2026
+#
+# All rights reserved.
+#
+# Permission is hereby granted, free of charge, to any person obtaining a
+# copy of this software and associated documentation files (the "Software"),
+# to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense,
+# and/or sell copies of the Software, and to permit persons to whom the
+# Software is furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included
+# in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+# OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+# THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+# DEALINGS IN THE SOFTWARE.
+################################################################################
+    "synthesis":
+    {
+        "use-templated-synthdex": true,
+        "use-static-synthdex": false,
+        "top-k": 3,
+        "variant": ["grid"],
+        # Skyline only for analysis, because it disables the size-aware selection of the best suggestion
+        "skyline": false,
+        "skyline-tolerance": 0.005,
+        "top-relative": 0.05,
+        "boundary-tolerance": 0.01,
+        "verbose": false,
+        "store-all-evaluations": true,
+        "sample-size": 1000,
+        "batch-evals-size": 10,
+        # Size-aware selection of the best suggestion within x percent of the best performing suggestion
+        "size-delta": 0.05,
+        "grad":
+        {
+            "max-steps": 4000,
+            "lr": 0.05,
+            "enable-multi-init": true,
+            "objective": "weighted_log",
+            "multi-start": 50,
+            "adam-steps": 1200,
+            "lbfgs-steps": 200,
+            "patience": 60,
+            "min-rel-improve": 1e-4,
+            "grad-clip": 1.0,
+            "cosine-anneal": true,
+            "seed": 42,
+            "trust-region-factor": 0.35,
+            "trust-region-decay": 0.5,
+            "sam-rho": 0.02,
+            "perturb-on-plateau": true,
+            "perturb-trials": 4,
+            "perturb-scale": 0.20,
+            "threshold-slow": 2e-4,
+            "perturb-check-interval": 60,
+            "sobol-local": true,
+            "local-sobol-points": 12,
+            "span-grad-normalize": true,
+            "weight-temperature": 1.0,
+            "revert-on-degradation": true,
+            "max-param-jump-frac": 0.55,
+            "diagnostics-level": 2,
+            "size-phase2-steps": 400,
+            "size-phase2-penalty": 100.0,
+            # "size-alpha": 0.6,
+            # Keep phase 1 throughput-only; size-delta controls phase 2's
+            # memory minimization within the allowed throughput tolerance.
+            "size-alpha": 0.0,
+            "boundary-beta": 0.01
+        },
+        "grid":
+        {
+            "exclude-boundaries": false,
+            "step-resolution-and-top-k": 
+            [
+                [6, 20],
+                [3, 10],
+                [2, 2]
+# better for ranking analysis
+#                [7, 20],
+#                [4, 10],
+#                [2, 2]
+            ],
+            "candidates-limit": 100000,
+            "objective": "weighted_log",
+            "weight-temperature": 1.0
+        },
+        "gene":
+        {
+            "num-generations": 100,
+            "population-size": 100,
+            "mutation-rate": 0.1,
+            "mutation-scale": 0.15,
+            "crossover-ratio": 0.5,
+            "init": "sobol",
+            "selection": "truncation",
+            "num-parents": 20,
+            "tournament-size": 10,
+            "elitism-count": 2,
+            "seed": 42,
+            "stagnation-improvement": 0.001,
+            "stagnation-patience": 15,
+            "objective": "weighted_log",
+            "weight-temperature": 1.0
+        },
+        "bayo":
+        {
+            "n-initial": 16,
+            "n-iterations": 40,
+            "batch-size": 1,
+            "acquisition": "ei",
+            "xi": 0.01,
+            "kappa": 2.0,
+            "candidate-pool-size": 2048,
+            "init": "sobol",
+            "kernel-nu": 2.5,
+            "kernel-restarts": 2,
+            "noise-alpha": 1e-6,
+            "normalize-y": true,
+            "seed": 42,
+            "stagnation-improvement": 0.001,
+            "stagnation-patience": 15
+        },
+        "intervals":
+        {
+            "slices": 20,
+            "clustering":
+            {
+                "contiguous": true
+            },
+        },
+    },
+    # Calibration of synthesis hyper-parameters. Every experiment names a
+    # method and a list of settings; each setting is deep-merged over
+    # synthesis.<type> for the duration of one measurement, so only the keys
+    # that differ from the base configuration need to be listed. The reference
+    # is the synthesis configured under "synthesis" above (currently grid).
+    "tuning":
+    {
+        "num-object-collections": 100,
+        # Build and execute the winning index of every setting to obtain the
+        # real throughput degradation. Disable to compare LCM-predicted cost
+        # only, which is far cheaper but blind to LCM error.
+        "measure-actual": false,
+        "exps":
+        {
+            "grid-exp":
+            {
+                "type": "grid",
+                "settings":
+                [
+                    { "step-resolution-and-top-k": [[2, 3], [2, 3], [2, 2]] },
+                    { "step-resolution-and-top-k": [[2, 5], [2, 5], [2, 2]] },
+                    { "step-resolution-and-top-k": [[2, 10], [2, 10], [2, 2]] },
+                    { "step-resolution-and-top-k": [[3, 3], [3, 3], [3, 2]] },
+                    { "step-resolution-and-top-k": [[3, 5], [3, 5], [3, 2]] },
+                    { "step-resolution-and-top-k": [[3, 10], [3, 10], [3, 2]] },
+                    { "step-resolution-and-top-k": [[4, 3], [4, 3], [4, 2]] },
+                    { "step-resolution-and-top-k": [[4, 5], [4, 5], [4, 2]] },
+                    { "step-resolution-and-top-k": [[4, 10], [4, 10], [4, 2]] }
+                ]
+            },
+            "grad-exp":
+            {
+                "type": "grad",
+                "settings":
+                [
+                    { "multi-start": 8,  "adam-steps": 150 },
+                    { "multi-start": 8,  "adam-steps": 300 },
+                    { "multi-start": 8,  "adam-steps": 600 },
+                    { "multi-start": 16, "adam-steps": 150 },
+                    { "multi-start": 16, "adam-steps": 300 },
+                    { "multi-start": 16, "adam-steps": 600 },
+                    { "multi-start": 32, "adam-steps": 150 },
+                    { "multi-start": 32, "adam-steps": 300 },
+                    { "multi-start": 32, "adam-steps": 600 }
+                ]
+            },
+            "gene-exp":
+            {
+                "type": "gene",
+                "settings":
+                [
+                    { "population-size": 25,  "num-generations": 20 },
+                    { "population-size": 25,  "num-generations": 50 },
+                    { "population-size": 25,  "num-generations": 100 },
+                    { "population-size": 50,  "num-generations": 20 },
+                    { "population-size": 50,  "num-generations": 50 },
+                    { "population-size": 50,  "num-generations": 100 },
+                    { "population-size": 100, "num-generations": 20 },
+                    { "population-size": 100, "num-generations": 50 },
+                    { "population-size": 100, "num-generations": 100 }
+                ]
+            },
+            "bayo-exp":
+            {
+                "type": "bayo",
+                "settings":
+                [
+                    { "n-initial": 8,  "n-iterations": 20 },
+                    { "n-initial": 8,  "n-iterations": 40 },
+                    { "n-initial": 8,  "n-iterations": 80 },
+                    { "n-initial": 16, "n-iterations": 20 },
+                    { "n-initial": 16, "n-iterations": 40 },
+                    { "n-initial": 16, "n-iterations": 80 },
+                    { "n-initial": 32, "n-iterations": 20 },
+                    { "n-initial": 32, "n-iterations": 40 },
+                    { "n-initial": 32, "n-iterations": 80 }
+                ]
+            }
+        }
+    },
+    "prediction":
+    {
+        "predict-before-run": false,
+        "top-k": 0
+    },
+    "accuracy":
+    {
+        "num-object-collections": 100,
+        "num-indices-per-OQ": 10,
+        "emit-training-data": true,
+        "from-parquet": false,
+        "from-parquet-aggregate-OI": true
+    },
+    "noise":
+    {
+        "num-object-collections": 50,
+        "num-indices-per-workload": 10,
+        "num-runs-per-index": 5,
+        "shuffle-queries": true,
+        "shuffle-workloads": true
+    },
+    "ranking":
+    {
+        "num-object-collections": 100,
+        "num-indices-per-OQ": 5,
+        "indices-min-performance-to-top-pct": 50.0,
+        "indices-min-performance-delta-to-next-pct": 8.0
+#        "indices-min-performance-delta-to-next-pct": 10.0
+    },
