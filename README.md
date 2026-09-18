@@ -2,7 +2,9 @@
 
 ## Overview
 
-Temporal Information Retrieval (TIR) extends classical IR by incorporating temporal dynamics. Given a collection of objects — such as documents or database records — each characterized by a time interval and a set of descriptive elements (e.g., keywords), the goal is to efficiently answer *time-travel IR queries*: retrieve all objects whose description contains the query elements and whose lifespan overlaps the query time range. This type of query is fundamental in web and document archives, versioning systems, temporal databases, and scientific data collections.
+SynthDex is a framework for bespoke, learned indexing in Temporal Information Retrieval (TIR). Its neural-network Learned Cost Model uses machine learning to predict candidate performance and guide the synthesis of workload-aware adaptive ensemble indexes tailored to each dataset and query workload.
+
+Temporal Information Retrieval extends classical Information Retrieval by incorporating temporal dynamics. Given a collection of objects — such as documents or database records — each characterized by a time interval and a set of descriptive elements (e.g., keywords), the goal is to efficiently answer *time-travel IR queries*: retrieve all objects whose description contains the query elements and whose lifespan overlaps the query time range. This type of query is fundamental in web and document archives, versioning systems, temporal databases, and scientific data collections.
 
 Prior work addresses this problem by extending inverted index structures with temporal information. Vertical partitioning (slicing) divides every posting list by time domain; horizontal partitioning (sharding) groups postings into temporal shards. More recently, reorganizing posting lists as HINT — the state-of-the-art in-memory interval index — has been shown to outperform these IR-first approaches, particularly as query time extents grow. However, no single method dominates across all workloads: performance varies substantially with query element selectivity, temporal distributions, and dataset characteristics.
 
@@ -295,9 +297,9 @@ impl/                       Source code and build
 │   ├── synthesisbase       Shared synthesis infrastructure
 │   ├── skyline             Pareto skyline filtering
 │   ├── sy_grid             Grid-based search
-│   ├── sy_grad             Gradient-based search
-│   ├── sy_gene             Genetic-algorithm search
-│   └── sy_bayo             Bayesian-optimization search
+│   ├── sy_grad             Gradient-based search (removed for now)
+│   ├── sy_gene             Genetic-algorithm search (removed for now)
+│   └── sy_bayo             Bayesian-optimization search (removed for now)
 ├── generation/             Synthetic data generation
 │   ├── ogen                Object generation
 │   ├── qgen                Query generation
@@ -352,16 +354,9 @@ output/                     Generated artifacts (created at runtime)
 ├── logs/                   Runtime log files
 ├── plots/                  Generated plot scripts and figures
 └── tests/                  Test output
-
-exps/                       Experiment driver and supporting files
-├── start.py                Main experiment script (enables/disables datasets, workloads, configs)
-├── idxcfg/                 Predefined index configuration JSON files used in experiments
-├── samples/                Sample datasets and query workloads
-└── scores/                 Collected score CSV results from experiment runs
 ```
 
 
 ## Experiments
 Experiments were conducted on a dual Intel Xeon E5-2630 v4 @ 2.20 GHz with 512 GB RAM running AlmaLinux 8.5 (Kernel 4.18.0).
 
-All experiments can be run with `misc/exps.start.py`, where datasets, workloads, and configurations can be individually enabled or disabled.
